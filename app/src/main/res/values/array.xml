@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="genders">
+        <item>@string/all</item>
+        <item>Female</item>
+        <item>Male</item>
+        <item>Genderless</item>
+        <item>Unknown</item>
+    </string-array>
+</resources>

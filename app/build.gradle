@@ -10,13 +10,15 @@ ext {
     materialVersion = '1.9.0'
     constraintLayoutVersion = '2.1.4'
     lifecycleVersion = '2.6.1'
-    coroutinesVersion = '1.6.4'
+    fragmentKtxVersion = '1.6.0'
+    coroutinesVersion = '1.7.1'
     daggerVersion = '2.45'
-    roomVersion = "2.5.1"
+    roomVersion = '2.5.1'
     retrofitVersion = '2.9.0'
     pagingVersion = '3.1.1'
-    glideVersion = '4.15.0'
+    glideVersion = '4.15.1'
     swipeRefreshLayoutVersion = '1.1.0'
+    sectionedRecyclerViewAdapterVersion = 'v3.2.0'
     junitVersion = '4.13.2'
     androidxJunitVersion = '1.1.5'
     espressoVersion = '3.5.1'
@@ -67,6 +69,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
 
+    implementation "androidx.fragment:fragment-ktx:$fragmentKtxVersion"
+
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
 
     implementation "com.google.dagger:dagger:$daggerVersion"
@@ -85,6 +89,8 @@ dependencies {
     implementation "com.github.bumptech.glide:glide:$glideVersion"
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:$swipeRefreshLayoutVersion"
+
+    implementation "com.github.luizgrp:SectionedRecyclerViewAdapter:$sectionedRecyclerViewAdapterVersion"
 
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
