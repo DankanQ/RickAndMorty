@@ -1,3 +1,29 @@
 <resources>
     <string name="app_name">RickAndMorty</string>
+
+    <string name="name">Name</string>
+    <string name="search_characters">Search characters</string>
+    <string name="filter_characters">Filter characters</string>
+    <string name="species">Species</string>
+    <string name="type">Type</string>
+    <string name="all">Any</string>
+    <string name="status">Status:</string>
+    <string name="gender">Gender:</string>
+    <string name="search">Search</string>
+
+    <string name="separator">&#160;|&#160;</string>
+    <string name="retry">Retry</string>
+    <string name="content_description_character_image">character image</string>
+
+    <string name="alive">Alive</string>
+    <string name="dead">Dead</string>
+    <string name="unknown">unknown</string>
+    <string name="Status">Status</string>
+    <string name="information">Information</string>
+    <string name="character_detail">Character detail</string>
+    <string name="episodes">Episodes</string>
+    <string name="last_known_location">Last known location</string>
+    <string name="first_seen_in">First seen in</string>
+    <string name="network_error">Network error</string>
+    <string name="error_description">Error description</string>
 </resources>
