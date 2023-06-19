@@ -9,9 +9,12 @@ import com.dankanq.rickandmorty.data.database.dao.CharacterDao
 import com.dankanq.rickandmorty.data.mapper.CharacterMapper
 import com.dankanq.rickandmorty.data.network.CharacterApi
 import com.dankanq.rickandmorty.data.paging.CharacterRemoteMediator
-import com.dankanq.rickandmorty.data.paging.CharacterRemoteMediator.Companion.PAGE_SIZE
 import com.dankanq.rickandmorty.domain.character.repository.CharacterRepository
+import com.dankanq.rickandmorty.entity.character.data.network.CharacterDto
 import com.dankanq.rickandmorty.entity.character.domain.Character
+import com.dankanq.rickandmorty.utils.Constants.PAGE_SIZE
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -81,6 +84,37 @@ class CharacterRepositoryImpl @Inject constructor(
         val characterEntity =
             characterMapper.mapCharacterDtoToEntity(characterDto)
         characterDao.insertCharacter(characterEntity)
+
+        emit(Unit)
+    }.flowOn(Dispatchers.IO)
+
+    override suspend fun getCharacterListByIds(ids: String): List<Character> {
+        return withContext(Dispatchers.IO) {
+            val idList = ids.split(",").map { it.trim().toLong() }
+            val characterList = characterDao.getCharacterList(idList).map { characterEntity ->
+                characterMapper.mapCharacterEntityToModel(characterEntity)
+            }
+            characterList
+        }
+    }
+
+    override fun loadCharacterListByIds(ids: String): Flow<Unit> = flow {
+        val response = characterApi.getCharacterListByIds(ids)
+        val characterList: List<CharacterDto> = if (response.isJsonObject) {
+            val characterDto = Gson().fromJson(response, CharacterDto::class.java)
+            listOf(characterDto)
+        } else {
+            val charactersDto = Gson().fromJson<List<CharacterDto>>(
+                response,
+                object : TypeToken<List<CharacterDto>>() {}.type
+            )
+            charactersDto
+        }
+
+        val characterEntityList = characterList.map { characterDto ->
+            characterMapper.mapCharacterDtoToEntity(characterDto)
+        }
+        characterDao.insertCharacterList(characterEntityList)
 
         emit(Unit)
     }.flowOn(Dispatchers.IO)

@@ -1,10 +1,10 @@
-package com.dankanq.rickandmorty.presentation.character.main.adapter
+package com.dankanq.rickandmorty.presentation.episode.detail.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -12,11 +12,12 @@ import com.dankanq.rickandmorty.R
 import com.dankanq.rickandmorty.databinding.ItemCharacterBinding
 import com.dankanq.rickandmorty.entity.character.domain.Character
 import com.dankanq.rickandmorty.utils.presentation.diffutil.CharacterDiffUtilCallback
+import com.dankanq.rickandmorty.utils.presentation.viewholder.CharacterViewHolder
 
-class CharactersAdapter(
-    private val context: Context,
-) : PagingDataAdapter<Character, RecyclerView.ViewHolder>(CharacterDiffUtilCallback) {
+class CharacterAdapter(
+    val context: Context,
     var onCharacterClick: ((Character) -> Unit)? = null
+) : ListAdapter<Character, RecyclerView.ViewHolder>(CharacterDiffUtilCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val binding = ItemCharacterBinding.inflate(
@@ -52,10 +53,6 @@ class CharactersAdapter(
             }
         }
     }
-
-    class CharacterViewHolder(
-        val binding: ItemCharacterBinding
-    ) : RecyclerView.ViewHolder(binding.root)
 
     private fun getStatusColorId(status: String): Int {
         return when (status) {

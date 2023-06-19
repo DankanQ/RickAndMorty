@@ -26,4 +26,10 @@
     <string name="first_seen_in">First seen in</string>
     <string name="network_error">Network error</string>
     <string name="error_description">Error description</string>
+    <string name="search_episodes">Search episodes</string>
+    <string name="episode">Episode</string>
+    <string name="episode_detail">Episode detail</string>
+    <string name="air_date">Air date</string>
+    <string name="characters">Characters</string>
+    <string name="locations">Locations</string>
 </resources>

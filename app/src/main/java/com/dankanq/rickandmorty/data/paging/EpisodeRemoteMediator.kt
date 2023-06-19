@@ -4,10 +4,10 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
-import com.dankanq.rickandmorty.data.database.dao.CharacterDao
-import com.dankanq.rickandmorty.data.mapper.CharacterMapper
-import com.dankanq.rickandmorty.data.network.CharacterApi
-import com.dankanq.rickandmorty.entity.character.data.database.CharacterEntity
+import com.dankanq.rickandmorty.data.database.dao.EpisodeDao
+import com.dankanq.rickandmorty.data.mapper.EpisodeMapper
+import com.dankanq.rickandmorty.data.network.EpisodeApi
+import com.dankanq.rickandmorty.entity.episode.data.database.EpisodeEntity
 import com.dankanq.rickandmorty.utils.Constants.PAGE_SIZE
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -15,23 +15,19 @@ import dagger.assisted.AssistedInject
 import retrofit2.HttpException
 import java.io.IOException
 
-// TODO: переделать RemoteMediator для большей гибкости
 @OptIn(ExperimentalPagingApi::class)
-class CharacterRemoteMediator @AssistedInject constructor(
-    private val characterDao: CharacterDao,
-    private val characterApi: CharacterApi,
-    private val characterMapper: CharacterMapper,
+class EpisodeRemoteMediator @AssistedInject constructor(
+    private val episodeDao: EpisodeDao,
+    private val episodeApi: EpisodeApi,
+    private val episodeMapper: EpisodeMapper,
     @Assisted(KEY_NAME) private val name: String?,
-    @Assisted(KEY_STATUS) private val status: String?,
-    @Assisted(KEY_SPECIES) private val species: String?,
-    @Assisted(KEY_TYPE) private val type: String?,
-    @Assisted(KEY_GENDER) private val gender: String?
-) : RemoteMediator<Int, CharacterEntity>() {
+    @Assisted(KEY_EPISODE) private val episode: String?
+) : RemoteMediator<Int, EpisodeEntity>() {
     private var pageIndex = 0
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, CharacterEntity>
+        state: PagingState<Int, EpisodeEntity>
     ): MediatorResult {
         return try {
             pageIndex = getPageIndex(loadType)
@@ -39,15 +35,15 @@ class CharacterRemoteMediator @AssistedInject constructor(
 
             val characterList = fetchCharacters()
             if (loadType == LoadType.REFRESH) {
-                characterDao.refresh(characterList)
+                episodeDao.refresh(characterList)
             } else {
-                characterDao.save(characterList)
+                episodeDao.save(characterList)
             }
             MediatorResult.Success(
                 endOfPaginationReached = characterList.size < PAGE_SIZE
             )
         } catch (e: IOException) {
-            if (characterDao.getCharacterCount() > 0) {
+            if (episodeDao.getEpisodesCount() > 0) {
                 return MediatorResult.Error(
                     LoadError.NetworkError(
                         true,
@@ -78,17 +74,14 @@ class CharacterRemoteMediator @AssistedInject constructor(
         return pageIndex
     }
 
-    private suspend fun fetchCharacters(): List<CharacterEntity> {
-        return characterApi.getCharacterList(
+    private suspend fun fetchCharacters(): List<EpisodeEntity> {
+        return episodeApi.getEpisodeList(
             pageIndex,
             name = name,
-            status = status,
-            species = species,
-            type = type,
-            gender = gender
+            episode = episode
         )
-            .characterList
-            .map { characterMapper.mapCharacterDtoToEntity(it) }
+            .episodeList
+            .map { episodeMapper.mapCharacterDtoToEntity(it) }
     }
 
     sealed class LoadError : Exception() {
@@ -105,18 +98,12 @@ class CharacterRemoteMediator @AssistedInject constructor(
     interface Factory {
         fun create(
             @Assisted(KEY_NAME) name: String?,
-            @Assisted(KEY_STATUS) status: String?,
-            @Assisted(KEY_SPECIES) species: String?,
-            @Assisted(KEY_TYPE) type: String?,
-            @Assisted(KEY_GENDER) gender: String?
-        ): CharacterRemoteMediator
+            @Assisted(KEY_EPISODE) episode: String?
+        ): EpisodeRemoteMediator
     }
 
     companion object {
         private const val KEY_NAME = "name"
-        private const val KEY_STATUS = "status"
-        private const val KEY_SPECIES = "species"
-        private const val KEY_TYPE = "type"
-        private const val KEY_GENDER = "gender"
+        private const val KEY_EPISODE = "episode"
     }
 }

@@ -3,8 +3,8 @@ package com.dankanq.rickandmorty.domain.episode.usecase
 import com.dankanq.rickandmorty.domain.episode.repository.EpisodeRepository
 import javax.inject.Inject
 
-class LoadEpisodeListUseCase @Inject constructor(
+class GetEpisodeListByIdsUseCase @Inject constructor(
     private val repository: EpisodeRepository
 ) {
-    operator fun invoke(ids: String) = repository.loadEpisodeList(ids)
+    suspend operator fun invoke(ids: String) = repository.getEpisodeListByIds(ids)
 }

@@ -1,4 +1,4 @@
-package com.dankanq.rickandmorty.presentation.character.detail.adapters
+package com.dankanq.rickandmorty.utils.presentation.diffutil
 
 import androidx.recyclerview.widget.DiffUtil
 import com.dankanq.rickandmorty.entity.episode.domain.Episode

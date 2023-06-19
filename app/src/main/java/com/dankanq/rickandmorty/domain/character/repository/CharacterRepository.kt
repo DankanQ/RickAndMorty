@@ -16,4 +16,8 @@ interface CharacterRepository {
     suspend fun getCharacter(id: Long): Character
 
     fun loadCharacter(id: Long): Flow<Unit>
+
+    suspend fun getCharacterListByIds(ids: String): List<Character>
+
+    fun loadCharacterListByIds(ids: String): Flow<Unit>
 }
