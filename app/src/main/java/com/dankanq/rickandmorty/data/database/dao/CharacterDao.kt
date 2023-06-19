@@ -50,6 +50,13 @@ interface CharacterDao {
     @Query("SELECT * FROM characters WHERE id == :id LIMIT 1")
     fun getCharacter(id: Long): CharacterEntity
 
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCharacter(character: CharacterEntity)
+
+    @Query("SELECT * FROM characters WHERE id IN (:idList)")
+    fun getCharacterList(idList: List<Long>): List<CharacterEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCharacterList(characterList: List<CharacterEntity>)
 }

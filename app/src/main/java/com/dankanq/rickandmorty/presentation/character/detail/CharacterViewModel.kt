@@ -8,8 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.dankanq.rickandmorty.R
 import com.dankanq.rickandmorty.domain.character.usecase.GetCharacterUseCase
 import com.dankanq.rickandmorty.domain.character.usecase.LoadCharacterUseCase
-import com.dankanq.rickandmorty.domain.episode.usecase.GetEpisodeListUseCase
-import com.dankanq.rickandmorty.domain.episode.usecase.LoadEpisodeListUseCase
+import com.dankanq.rickandmorty.domain.episode.usecase.GetEpisodeListByIdsUseCase
+import com.dankanq.rickandmorty.domain.episode.usecase.LoadEpisodeListByIdsUseCase
 import com.dankanq.rickandmorty.entity.character.domain.Character
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -29,8 +29,8 @@ import javax.inject.Inject
 class CharacterViewModel @Inject constructor(
     private val getCharacterUseCase: GetCharacterUseCase,
     private val loadCharacterUseCase: LoadCharacterUseCase,
-    private val getEpisodeListUseCase: GetEpisodeListUseCase,
-    private val loadEpisodeListUseCase: LoadEpisodeListUseCase
+    private val getEpisodeListByIdsUseCase: GetEpisodeListByIdsUseCase,
+    private val loadEpisodeListByIdsUseCase: LoadEpisodeListByIdsUseCase
 ) : ViewModel() {
     private val characterId = MutableLiveData<Long>()
     private val episodeIds = MutableLiveData<String>()
@@ -64,7 +64,7 @@ class CharacterViewModel @Inject constructor(
     fun getEpisodeList() {
         viewModelScope.launch {
             val result = try {
-                val episodeList = getEpisodeListUseCase(episodeIds.value ?: "-1")
+                val episodeList = getEpisodeListByIdsUseCase(episodeIds.value ?: "-1")
                 if (episodeList.isNotEmpty()) {
                     DatabaseResult.Success(episodeList)
                 } else {
@@ -103,7 +103,7 @@ class CharacterViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val episodesFlow: Flow<State> = shouldRetryLoadEpisodeList.asFlow()
         .flatMapLatest {
-            loadEpisodeListUseCase(episodeIds.value!!)
+            loadEpisodeListByIdsUseCase(episodeIds.value!!)
                 .map { State.Success(content = it) as State }
                 .onStart { emit(State.Loading) }
                 .mergeWith(loadingFlow)

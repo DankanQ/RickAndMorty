@@ -2,6 +2,7 @@ package com.dankanq.rickandmorty.data.network
 
 import com.dankanq.rickandmorty.entity.character.data.network.CharacterDto
 import com.dankanq.rickandmorty.entity.character.data.network.CharacterListDto
+import com.google.gson.JsonElement
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -21,4 +22,9 @@ interface CharacterApi {
     suspend fun getCharacterById(
         @Path("id") id: Long
     ): CharacterDto
+
+    @GET("character/{ids}")
+    suspend fun getCharacterListByIds(
+        @Path("ids") ids: String
+    ): JsonElement
 }

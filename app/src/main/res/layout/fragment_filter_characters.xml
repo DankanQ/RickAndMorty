@@ -176,7 +176,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/b_search"
             android:layout_width="match_parent"
-            android:layout_height="58dp"
+            android:layout_height="56dp"
             android:backgroundTint="@color/ship_gray"
             android:elevation="0dp"
             android:insetTop="0dp"

@@ -5,4 +5,6 @@ object Constants {
 
     const val NULL_STRING = ""
     const val EMPTY_STRING = "~"
+
+    const val PAGE_SIZE = 20
 }

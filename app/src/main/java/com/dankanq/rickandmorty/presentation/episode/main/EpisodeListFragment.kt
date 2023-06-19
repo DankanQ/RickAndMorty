@@ -1,4 +1,4 @@
-package com.dankanq.rickandmorty.presentation.character.main
+package com.dankanq.rickandmorty.presentation.episode.main
 
 import android.content.Context
 import android.os.Bundle
@@ -16,21 +16,18 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dankanq.rickandmorty.R
 import com.dankanq.rickandmorty.RickAndMortyApp
-import com.dankanq.rickandmorty.databinding.FragmentCharactersBinding
-import com.dankanq.rickandmorty.presentation.character.detail.CharacterFragment
-import com.dankanq.rickandmorty.presentation.character.main.FilterCharactersFragment.Companion.BUNDLE_GENDER_KEY
-import com.dankanq.rickandmorty.presentation.character.main.FilterCharactersFragment.Companion.BUNDLE_NAME_KEY
-import com.dankanq.rickandmorty.presentation.character.main.FilterCharactersFragment.Companion.BUNDLE_SPECIES_KEY
-import com.dankanq.rickandmorty.presentation.character.main.FilterCharactersFragment.Companion.BUNDLE_STATUS_KEY
-import com.dankanq.rickandmorty.presentation.character.main.FilterCharactersFragment.Companion.BUNDLE_TYPE_KEY
-import com.dankanq.rickandmorty.presentation.character.main.FilterCharactersFragment.Companion.SEARCH_CHARACTERS_RESULT_KEY
-import com.dankanq.rickandmorty.presentation.character.main.adapter.CharactersAdapter
-import com.dankanq.rickandmorty.utils.presentation.addTextChangedListener
-import com.dankanq.rickandmorty.utils.presentation.onSearch
-import com.dankanq.rickandmorty.utils.presentation.simpleScan
+import com.dankanq.rickandmorty.databinding.FragmentEpisodeListBinding
+import com.dankanq.rickandmorty.presentation.episode.detail.EpisodeFragment
+import com.dankanq.rickandmorty.presentation.episode.main.FilterEpisodeListFragment.Companion.BUNDLE_EPISODE_KEY
+import com.dankanq.rickandmorty.presentation.episode.main.FilterEpisodeListFragment.Companion.BUNDLE_NAME_KEY
+import com.dankanq.rickandmorty.presentation.episode.main.FilterEpisodeListFragment.Companion.SEARCH_EPISODE_LIST_RESULT_KEY
+import com.dankanq.rickandmorty.presentation.episode.main.adapter.EpisodeListAdapter
 import com.dankanq.rickandmorty.utils.presentation.MainLoadStateAdapter
 import com.dankanq.rickandmorty.utils.presentation.TryAgainAction
 import com.dankanq.rickandmorty.utils.presentation.ViewModelFactory
+import com.dankanq.rickandmorty.utils.presentation.addTextChangedListener
+import com.dankanq.rickandmorty.utils.presentation.onSearch
+import com.dankanq.rickandmorty.utils.presentation.simpleScan
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -44,16 +41,16 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class CharactersFragment : Fragment() {
-    private var _binding: FragmentCharactersBinding? = null
-    private val binding: FragmentCharactersBinding
-        get() = _binding ?: throw RuntimeException("FragmentCharactersBinding is null")
+class EpisodeListFragment : Fragment() {
+    private var _binding: FragmentEpisodeListBinding? = null
+    private val binding: FragmentEpisodeListBinding
+        get() = _binding ?: throw RuntimeException("FragmentEpisodeListBinding is null")
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
 
     private val viewModel by lazy {
-        ViewModelProvider(this, viewModelFactory)[CharactersViewModel::class.java]
+        ViewModelProvider(this, viewModelFactory)[EpisodeListViewModel::class.java]
     }
 
     private val component by lazy {
@@ -61,7 +58,7 @@ class CharactersFragment : Fragment() {
     }
 
     private val adapter by lazy {
-        CharactersAdapter(requireContext())
+        EpisodeListAdapter()
     }
 
     private lateinit var layoutManager: GridLayoutManager
@@ -78,7 +75,7 @@ class CharactersFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentCharactersBinding.inflate(inflater, container, false)
+        _binding = FragmentEpisodeListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -93,7 +90,7 @@ class CharactersFragment : Fragment() {
         setupFilterButton()
         setupFilterFragmentResultListener()
 
-        observeCharacters()
+        observeEpisodeList()
         observeLoadState()
 
 //        handleListVisibility()
@@ -120,7 +117,7 @@ class CharactersFragment : Fragment() {
                 onSearch {
                     val name = etSearch.text.toString()
                     viewModel.applyFilters(
-                        params = CharactersViewModel.FilterParams(
+                        params = EpisodeListViewModel.EpisodeFilterParams(
                             name = name
                         )
                     )
@@ -141,8 +138,8 @@ class CharactersFragment : Fragment() {
         layoutManager = GridLayoutManager(requireContext(), 2)
         binding.recyclerView.layoutManager = layoutManager
         binding.recyclerView.adapter = adapter
-        adapter.onCharacterClick = { character ->
-            val fragment = CharacterFragment.newInstance(character.id)
+        adapter.onEpisodeClick = { episode ->
+            val fragment = EpisodeFragment.newInstance(episode.id)
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container_view, fragment)
                 .addToBackStack(null)
@@ -189,35 +186,29 @@ class CharactersFragment : Fragment() {
 
     private fun setupFilterButton() {
         binding.fabFilter.setOnClickListener {
-            FilterCharactersFragment().show(
+            FilterEpisodeListFragment().show(
                 requireActivity().supportFragmentManager,
-                FilterCharactersFragment.TAG
+                FilterEpisodeListFragment.TAG
             )
         }
     }
 
     private fun setupFilterFragmentResultListener() {
-        setFragmentResultListener(SEARCH_CHARACTERS_RESULT_KEY) { _, bundle ->
+        setFragmentResultListener(SEARCH_EPISODE_LIST_RESULT_KEY) { _, bundle ->
             val name = bundle.getString(BUNDLE_NAME_KEY).orEmpty()
-            val status = bundle.getString(BUNDLE_STATUS_KEY).orEmpty()
-            val species = bundle.getString(BUNDLE_SPECIES_KEY).orEmpty()
-            val type = bundle.getString(BUNDLE_TYPE_KEY).orEmpty()
-            val gender = bundle.getString(BUNDLE_GENDER_KEY).orEmpty()
+            val episode = bundle.getString(BUNDLE_EPISODE_KEY).orEmpty()
 
-            val filterParams = CharactersViewModel.FilterParams(
+            val filterParams = EpisodeListViewModel.EpisodeFilterParams(
                 name = name,
-                status = status,
-                species = species,
-                type = type,
-                gender = gender
+                episode = episode
             )
             viewModel.applyFilters(filterParams)
         }
     }
 
-    private fun observeCharacters() {
+    private fun observeEpisodeList() {
         lifecycleScope.launch {
-            viewModel.charactersFlow.collectLatest { pagingData ->
+            viewModel.episodeListFlow.collectLatest { pagingData ->
                 adapter.submitData(pagingData)
             }
         }
@@ -260,11 +251,11 @@ class CharactersFragment : Fragment() {
             }
     }
 
-    private fun getRefreshLoadStateFlow(adapter: CharactersAdapter): Flow<LoadState> {
+    private fun getRefreshLoadStateFlow(adapter: EpisodeListAdapter): Flow<LoadState> {
         return adapter.loadStateFlow.map { it.refresh }
     }
 
     companion object {
-        fun newInstance() = CharactersFragment()
+        fun newInstance() = EpisodeListFragment()
     }
 }

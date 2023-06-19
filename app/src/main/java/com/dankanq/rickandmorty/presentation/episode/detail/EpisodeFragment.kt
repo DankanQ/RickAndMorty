@@ -1,4 +1,4 @@
-package com.dankanq.rickandmorty.presentation.character.detail
+package com.dankanq.rickandmorty.presentation.episode.detail
 
 import android.content.Context
 import android.os.Bundle
@@ -6,52 +6,47 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dankanq.rickandmorty.R
 import com.dankanq.rickandmorty.RickAndMortyApp
-import com.dankanq.rickandmorty.databinding.FragmentCharacterBinding
+import com.dankanq.rickandmorty.databinding.FragmentEpisodeBinding
 import com.dankanq.rickandmorty.entity.character.domain.Character
 import com.dankanq.rickandmorty.entity.episode.domain.Episode
-import com.dankanq.rickandmorty.presentation.character.detail.adapters.EpisodeAdapter
-import com.dankanq.rickandmorty.presentation.character.detail.adapters.InfoSection
-import com.dankanq.rickandmorty.presentation.episode.detail.EpisodeFragment
+import com.dankanq.rickandmorty.presentation.character.detail.CharacterFragment
+import com.dankanq.rickandmorty.presentation.episode.detail.adapters.CharacterAdapter
 import com.dankanq.rickandmorty.utils.presentation.ViewModelFactory
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class CharacterFragment : Fragment() {
-    private var _binding: FragmentCharacterBinding? = null
-    private val binding: FragmentCharacterBinding
-        get() = _binding ?: throw RuntimeException("FragmentCharacterBinding is null")
+class EpisodeFragment : Fragment() {
+    private var _binding: FragmentEpisodeBinding? = null
+    private val binding: FragmentEpisodeBinding
+        get() = _binding ?: throw RuntimeException("FragmentEpisodeBinding is null")
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
 
     private val viewModel by lazy {
-        ViewModelProvider(this, viewModelFactory)[CharacterViewModel::class.java]
+        ViewModelProvider(this, viewModelFactory)[EpisodeViewModel::class.java]
     }
 
     private val component by lazy {
         (requireActivity().application as RickAndMortyApp).component
     }
 
-    private var characterId: Long = UNDEFINED_CHARACTER_ID
+    private var episodeId: Long = UNDEFINED_EPISODE_ID
 
-    private val episodesAdapter by lazy {
-        EpisodeAdapter()
+    private val characterAdapter by lazy {
+        CharacterAdapter(requireContext())
     }
 
-    private var hasCharacterLocaleData: Boolean = false
+    private var hasEpisodeLocaleData: Boolean = false
 
     override fun onAttach(context: Context) {
         component.inject(this)
@@ -70,7 +65,7 @@ class CharacterFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentCharacterBinding.inflate(inflater, container, false)
+        _binding = FragmentEpisodeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -79,15 +74,15 @@ class CharacterFragment : Fragment() {
 
         setupAppBarLayout()
         setupSwipeRefreshLayout()
-        setupRetryDetailButton()
-        setupRetryEpisodeListButton()
+        setupRetryEpisodeButton()
+        setupRetryCharacterListButton()
 
-        observeCharacterDetail()
-        observeEpisodes()
+        observeEpisode()
+        observeCharacterList()
 
         viewModel.run {
-            setupCharacterId(characterId)
-            getCharacter()
+            setupEpisodeId(episodeId)
+            getEpisode()
         }
     }
 
@@ -122,62 +117,45 @@ class CharacterFragment : Fragment() {
         }
     }
 
-    private fun setupRetryDetailButton() {
+    private fun setupRetryEpisodeButton() {
         binding.mainLoadState.bRetry.setOnClickListener {
-            viewModel.retryLoadCharacter()
+            viewModel.retryLoadEpisode()
         }
     }
 
-    private fun setupRetryEpisodeListButton() {
+    private fun setupRetryCharacterListButton() {
         binding.episodesLoadState.bRetrySecond.setOnClickListener {
-            viewModel.retryLoadEpisodeList()
+            viewModel.retryLoadCharacterList()
         }
     }
 
-    private fun observeCharacterDetail() {
+    private fun observeEpisode() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.character.observe(viewLifecycleOwner) { result ->
+                viewModel.episode.observe(viewLifecycleOwner) { result ->
                     when (result) {
-                        is CharacterViewModel.DatabaseResult.Success -> {
-                            hasCharacterLocaleData = true
+                        is EpisodeViewModel.DatabaseResult.Success -> {
+                            hasEpisodeLocaleData = true
 
-                            val character = result.data as Character
+                            val episode = result.data as Episode
 
                             with(binding) {
-                                Glide.with(requireContext())
-                                    .load(character.image)
-                                    .transition(DrawableTransitionOptions.withCrossFade())
-                                    .into(ivImage)
-
-                                tvName.text = character.name
-
-                                setupRecyclerViewInfo(character)
-
-                                setupOrigin(character.origin)
-
-                                tvLocation.apply {
-                                    text = viewModel.getParsedLocationName(character.location.name)
-                                    setTextColor(
-                                        ContextCompat.getColor(
-                                            requireContext(),
-                                            viewModel.getColorIdByStatus(character.status)
-                                        )
-                                    )
-                                }
+                                tvName.text = episode.name
+                                tvEpisode.text = episode.episode
+                                tvAirDate.text = episode.airDate
 
                                 viewModel.run {
-                                    setupEpisodeIds(character.episode)
-                                    getEpisodeList()
+                                    setupCharacterIds(episode.characters)
+                                    getCharacterList()
                                 }
 
                                 llContent.isVisible = true
                             }
                         }
-                        is CharacterViewModel.DatabaseResult.Error -> {
-                            hasCharacterLocaleData = false
+                        is EpisodeViewModel.DatabaseResult.Error -> {
+                            hasEpisodeLocaleData = false
 
-                            viewModel.retryLoadCharacter()
+                            viewModel.retryLoadEpisode()
                         }
                     }
                 }
@@ -186,9 +164,9 @@ class CharacterFragment : Fragment() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.loadCharacterDetailFlow.collect { state ->
+                viewModel.loadEpisodeFlow.collect { state ->
                     when (state) {
-                        is CharacterViewModel.State.Loading -> {
+                        is EpisodeViewModel.State.Loading -> {
                             with(binding) {
                                 mainLoadState.apply {
                                     progressBar.isVisible = true
@@ -201,7 +179,7 @@ class CharacterFragment : Fragment() {
                                 llContent.isVisible = false
                             }
                         }
-                        is CharacterViewModel.State.Success<*> -> {
+                        is EpisodeViewModel.State.Success<*> -> {
                             with(binding) {
                                 mainLoadState.apply {
                                     progressBar.isVisible = false
@@ -209,18 +187,18 @@ class CharacterFragment : Fragment() {
                                 }
                                 swipeRefreshLayout.isEnabled = true
 
-                                viewModel.getCharacter()
+                                viewModel.getEpisode()
                             }
                         }
-                        is CharacterViewModel.State.Error -> {
-                            if (hasCharacterLocaleData) {
+                        is EpisodeViewModel.State.Error -> {
+                            if (hasEpisodeLocaleData) {
                                 Toast.makeText(
                                     requireContext(),
                                     "Network error. Unable to refresh the page.",
                                     Toast.LENGTH_SHORT
                                 ).show()
 
-                                viewModel.getCharacter()
+                                viewModel.getEpisode()
 
                                 binding.swipeRefreshLayout.isEnabled = true
                             } else {
@@ -238,32 +216,32 @@ class CharacterFragment : Fragment() {
         }
     }
 
-    private fun observeEpisodes() {
+    private fun observeCharacterList() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.episodeList.observe(viewLifecycleOwner) { result ->
+                viewModel.characterList.observe(viewLifecycleOwner) { result ->
                     when (result) {
-                        is CharacterViewModel.DatabaseResult.Success -> {
-                            val episodeList = result.data as List<Episode>
+                        is EpisodeViewModel.DatabaseResult.Success -> {
+                            val characterList = result.data as List<Character>
 
-                            binding.rvEpisodes.adapter = episodesAdapter
-                            episodesAdapter.onEpisodeClick = { episode ->
-                                val fragment = EpisodeFragment.newInstance(episode.id)
+                            binding.rvCharacters.adapter = characterAdapter
+                            characterAdapter.onCharacterClick = { character ->
+                                val fragment = CharacterFragment.newInstance(character.id)
                                 requireActivity().supportFragmentManager.beginTransaction()
                                     .replace(R.id.fragment_container_view, fragment)
                                     .addToBackStack("null")
                                     .commit()
                             }
-                            episodesAdapter.submitList(episodeList)
+                            characterAdapter.submitList(characterList)
 
                             binding.episodesLoadState.progressBar.isVisible = false
                             val isEpisodeListDataComplete =
-                                viewModel.isEpisodeListDataComplete(episodeList.size)
+                                viewModel.isCharacterListDataComplete(characterList.size)
                             binding.episodesLoadState.llSecondLoadingState.isVisible =
                                 !isEpisodeListDataComplete
                         }
-                        is CharacterViewModel.DatabaseResult.Error -> {
-                            viewModel.retryLoadEpisodeList()
+                        is EpisodeViewModel.DatabaseResult.Error -> {
+                            viewModel.retryLoadCharacterList()
                         }
                     }
                 }
@@ -272,9 +250,9 @@ class CharacterFragment : Fragment() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.episodesFlow.collect { state ->
+                viewModel.characterListFlow.collect { state ->
                     when (state) {
-                        is CharacterViewModel.State.Loading -> {
+                        is EpisodeViewModel.State.Loading -> {
                             with(binding) {
                                 episodesLoadState.apply {
                                     llSecondLoadingState.isVisible = false
@@ -282,10 +260,10 @@ class CharacterFragment : Fragment() {
                                 }
                             }
                         }
-                        is CharacterViewModel.State.Success<*> -> {
-                            viewModel.getEpisodeList()
+                        is EpisodeViewModel.State.Success<*> -> {
+                            viewModel.getCharacterList()
                         }
-                        is CharacterViewModel.State.Error -> {
+                        is EpisodeViewModel.State.Error -> {
                             with(binding) {
                                 episodesLoadState.apply {
                                     progressBar.isVisible = false
@@ -299,45 +277,20 @@ class CharacterFragment : Fragment() {
         }
     }
 
-    private fun setupRecyclerViewInfo(character: Character) {
-        val infoMap = viewModel.getParsedInfoMap(character)
-        val sectionedAdapter = SectionedRecyclerViewAdapter()
-        for (info in infoMap) {
-            sectionedAdapter.addSection(
-                InfoSection(info.key, info.value, requireContext())
-            )
-        }
-        binding.rvInfo.adapter = sectionedAdapter
-    }
-
-    private fun setupOrigin(origin: Character.Origin) {
-        when (origin.name) {
-            getString(R.string.unknown) -> {
-                binding.cvOrigin.isVisible = false
-            }
-            else -> {
-                with(binding) {
-                    tvOrigin.text = origin.name
-                    cvOrigin.isVisible = true
-                }
-            }
-        }
-    }
-
     private fun parseArgs() {
         val args = requireArguments()
         if (!args.containsKey(ID_KEY)) {
             throw RuntimeException("Args screen mode is absent")
         }
-        characterId = args.getLong(ID_KEY)
+        episodeId = args.getLong(ID_KEY)
     }
 
     companion object {
         private const val ID_KEY = "id"
-        private const val UNDEFINED_CHARACTER_ID = 0L
+        private const val UNDEFINED_EPISODE_ID = 0L
 
-        fun newInstance(id: Long): CharacterFragment {
-            return CharacterFragment().apply {
+        fun newInstance(id: Long): EpisodeFragment {
+            return EpisodeFragment().apply {
                 arguments = Bundle().apply {
                     putLong(ID_KEY, id)
                 }
