@@ -5,6 +5,8 @@ import com.dankanq.rickandmorty.presentation.character.detail.CharacterFragment
 import com.dankanq.rickandmorty.presentation.character.main.CharactersFragment
 import com.dankanq.rickandmorty.presentation.episode.detail.EpisodeFragment
 import com.dankanq.rickandmorty.presentation.episode.main.EpisodeListFragment
+import com.dankanq.rickandmorty.presentation.location.detail.LocationFragment
+import com.dankanq.rickandmorty.presentation.location.main.LocationListFragment
 import dagger.BindsInstance
 import dagger.Component
 
@@ -23,6 +25,10 @@ interface AppComponent {
     fun inject(fragment: EpisodeListFragment)
 
     fun inject(fragment: EpisodeFragment)
+
+    fun inject(fragment: LocationListFragment)
+
+    fun inject(fragment: LocationFragment)
 
     @Component.Factory
     interface Factory {

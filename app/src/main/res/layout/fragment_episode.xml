@@ -186,12 +186,11 @@
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cv_episodes"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="24dp"
-                        android:layout_marginTop="16dp"
-                        app:cardBackgroundColor="@color/ship_gray"
+                        android:layout_marginTop="32dp"
+                        app:cardBackgroundColor="@color/dark_gunmetal"
                         app:cardCornerRadius="16dp"
                         app:strokeColor="@color/teal"
                         app:strokeWidth="4dp">
@@ -199,6 +198,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:background="@color/dark_gunmetal"
                             android:orientation="vertical"
                             android:paddingVertical="16dp">
 
@@ -216,12 +216,15 @@
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="16dp"
+                                android:layout_marginVertical="8dp"
                                 android:orientation="vertical">
 
                                 <androidx.recyclerview.widget.RecyclerView
                                     android:id="@+id/rv_characters"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
+                                    android:layout_marginBottom="8dp"
                                     android:clipToPadding="false"
                                     android:orientation="vertical"
                                     android:overScrollMode="never"
@@ -231,7 +234,7 @@
                                     tools:listitem="@layout/item_character" />
 
                                 <include
-                                    android:id="@+id/episodes_load_state"
+                                    android:id="@+id/characters_load_state"
                                     layout="@layout/second_load_state"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"

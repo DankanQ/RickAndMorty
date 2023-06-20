@@ -4,10 +4,10 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
-import com.dankanq.rickandmorty.data.database.dao.EpisodeDao
-import com.dankanq.rickandmorty.data.mapper.EpisodeMapper
-import com.dankanq.rickandmorty.data.network.EpisodeApi
-import com.dankanq.rickandmorty.entity.episode.data.database.EpisodeEntity
+import com.dankanq.rickandmorty.data.database.dao.LocationDao
+import com.dankanq.rickandmorty.data.mapper.LocationMapper
+import com.dankanq.rickandmorty.data.network.LocationApi
+import com.dankanq.rickandmorty.entity.location.data.database.LocationEntity
 import com.dankanq.rickandmorty.utils.Constants.PAGE_SIZE
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -16,34 +16,35 @@ import retrofit2.HttpException
 import java.io.IOException
 
 @OptIn(ExperimentalPagingApi::class)
-class EpisodeRemoteMediator @AssistedInject constructor(
-    private val episodeDao: EpisodeDao,
-    private val episodeApi: EpisodeApi,
-    private val episodeMapper: EpisodeMapper,
+class LocationRemoteMediator @AssistedInject constructor(
+    private val locationDao: LocationDao,
+    private val locationApi: LocationApi,
+    private val locationMapper: LocationMapper,
     @Assisted(KEY_NAME) private val name: String?,
-    @Assisted(KEY_EPISODE) private val episode: String?
-) : RemoteMediator<Int, EpisodeEntity>() {
+    @Assisted(KEY_TYPE) private val type: String?,
+    @Assisted(KEY_DIMENSION) private val dimension: String?
+) : RemoteMediator<Int, LocationEntity>() {
     private var pageIndex = 0
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, EpisodeEntity>
+        state: PagingState<Int, LocationEntity>
     ): MediatorResult {
         return try {
             pageIndex = getPageIndex(loadType)
                 ?: return MediatorResult.Success(endOfPaginationReached = true)
 
-            val episodeList = fetchEpisodeList()
+            val locationList = fetchLocationList()
             if (loadType == LoadType.REFRESH) {
-                episodeDao.refresh(episodeList)
+                locationDao.refresh(locationList)
             } else {
-                episodeDao.save(episodeList)
+                locationDao.save(locationList)
             }
             MediatorResult.Success(
-                endOfPaginationReached = episodeList.size < PAGE_SIZE
+                endOfPaginationReached = locationList.size < PAGE_SIZE
             )
         } catch (e: IOException) {
-            if (episodeDao.getEpisodesCount() > 0) {
+            if (locationDao.getLocationsCount() > 0) {
                 return MediatorResult.Error(
                     LoadError.NetworkError(
                         true,
@@ -74,14 +75,15 @@ class EpisodeRemoteMediator @AssistedInject constructor(
         return pageIndex
     }
 
-    private suspend fun fetchEpisodeList(): List<EpisodeEntity> {
-        return episodeApi.getEpisodeList(
+    private suspend fun fetchLocationList(): List<LocationEntity> {
+        return locationApi.getLocationList(
             pageIndex,
             name = name,
-            episode = episode
+            type = type,
+            dimension = dimension
         )
-            .episodeList
-            .map { episodeMapper.mapEpisodeDtoToEntity(it) }
+            .locationList
+            .map { locationMapper.mapLocationDtoToEntity(it) }
     }
 
     sealed class LoadError : Exception() {
@@ -98,12 +100,14 @@ class EpisodeRemoteMediator @AssistedInject constructor(
     interface Factory {
         fun create(
             @Assisted(KEY_NAME) name: String?,
-            @Assisted(KEY_EPISODE) episode: String?
-        ): EpisodeRemoteMediator
+            @Assisted(KEY_TYPE) type: String?,
+            @Assisted(KEY_DIMENSION) dimension: String?
+        ): LocationRemoteMediator
     }
 
     companion object {
         private const val KEY_NAME = "name"
-        private const val KEY_EPISODE = "episode"
+        private const val KEY_TYPE = "type"
+        private const val KEY_DIMENSION = "dimension"
     }
 }

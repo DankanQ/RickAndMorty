@@ -4,69 +4,55 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="8dp"
+    android:layout_margin="8dp"
     android:backgroundTint="@color/ship_gray"
     android:clipToPadding="false"
     android:padding="8dp"
-    app:cardCornerRadius="8dp"
+    app:cardCornerRadius="16dp"
     app:cardElevation="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingVertical="16dp">
 
         <TextView
             android:id="@+id/tv_episode_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:alpha="0.9"
             android:ellipsize="end"
             android:maxLines="2"
+            android:minLines="2"
+            android:gravity="center"
             android:paddingHorizontal="16dp"
-            android:paddingTop="8dp"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
             tools:text="Episode name" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tv_episode"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp"
-            android:paddingBottom="8dp">
+            android:layout_marginTop="8dp"
+            android:alpha="0.7"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            tools:text="S01E10" />
 
-            <TextView
-                android:id="@+id/tv_episode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:alpha="0.7"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                tools:text="S01E10" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:alpha="0.7"
-                android:includeFontPadding="false"
-                android:text="@string/separator"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/tv_air_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="0dp"
-                android:layout_marginEnd="0dp"
-                android:alpha="0.7"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                tools:text="April 7, 2014" />
-
-        </LinearLayout>
+        <TextView
+            android:id="@+id/tv_air_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:alpha="0.7"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            tools:text="April 7, 2014" />
 
     </LinearLayout>
 

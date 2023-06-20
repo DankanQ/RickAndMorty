@@ -15,7 +15,7 @@ interface EpisodeApi {
         @Query("episode") episode: String? = null
     ): EpisodeListDto
 
-    @GET("character/{id}")
+    @GET("episode/{id}")
     suspend fun getEpisode(
         @Path("id") id: Long
     ): EpisodeDto

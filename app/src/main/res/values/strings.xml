@@ -32,4 +32,10 @@
     <string name="air_date">Air date</string>
     <string name="characters">Characters</string>
     <string name="locations">Locations</string>
+    <string name="location_detail">Location detail</string>
+    <string name="dimension">Dimension</string>
+    <string name="residents">Residents</string>
+    <string name="filter_locations">Filter locations</string>
+    <string name="network_state_error">No internet connection</string>
+    <string name="network_state_success">Connected</string>
 </resources>

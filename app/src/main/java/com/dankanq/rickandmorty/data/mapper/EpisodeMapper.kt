@@ -8,7 +8,7 @@ import com.dankanq.rickandmorty.utils.data.formatDateString
 import javax.inject.Inject
 
 class EpisodeMapper @Inject constructor() {
-    fun mapCharacterDtoToEntity(episodeDto: EpisodeDto) = EpisodeEntity(
+    fun mapEpisodeDtoToEntity(episodeDto: EpisodeDto) = EpisodeEntity(
         id = episodeDto.id,
         name = episodeDto.name ?: NULL_STRING,
         airDate = episodeDto.airDate ?: NULL_STRING,
@@ -16,16 +16,6 @@ class EpisodeMapper @Inject constructor() {
         characters = episodeDto.characters ?: mutableListOf(),
         url = episodeDto.airDate ?: NULL_STRING,
         created = episodeDto.created?.let { formatDateString(it) } ?: NULL_STRING
-    )
-
-    fun mapEpisodeDtoToEntity(episodeDto: EpisodeDto) = EpisodeEntity(
-        id = episodeDto.id,
-        name = episodeDto.name ?: NULL_STRING,
-        airDate = episodeDto.airDate ?: NULL_STRING,
-        episode = episodeDto.episode ?: NULL_STRING,
-        characters = episodeDto.characters ?: mutableListOf(),
-        url = episodeDto.url ?: NULL_STRING,
-        created = episodeDto.created ?: NULL_STRING
     )
 
     fun mapEpisodeEntityToModel(episodeEntity: EpisodeEntity) = Episode(
