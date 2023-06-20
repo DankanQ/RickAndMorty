@@ -8,7 +8,7 @@
     android:backgroundTint="@color/ship_gray"
     android:clipToPadding="false"
     android:padding="8dp"
-    app:cardCornerRadius="8dp"
+    app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
     tools:layout_width="170dp">
 
@@ -70,8 +70,9 @@
             android:alpha="0.9"
             android:ellipsize="end"
             android:maxLines="2"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="8dp"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:paddingTop="16dp"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -81,8 +82,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:gravity="center"
             android:paddingHorizontal="16dp"
-            android:paddingBottom="12dp">
+            android:paddingTop="2dp"
+            android:paddingBottom="16dp">
 
             <TextView
                 android:id="@+id/tv_gender"
@@ -106,10 +109,9 @@
                 android:id="@+id/tv_species"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="0dp"
-                android:layout_marginEnd="0dp"
                 android:alpha="0.7"
                 android:ellipsize="end"
+                android:gravity="center"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 tools:text="Species" />

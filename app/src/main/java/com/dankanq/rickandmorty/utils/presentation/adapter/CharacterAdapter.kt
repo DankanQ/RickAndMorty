@@ -1,4 +1,4 @@
-package com.dankanq.rickandmorty.presentation.episode.detail.adapters
+package com.dankanq.rickandmorty.utils.presentation.adapter
 
 import android.content.Context
 import android.view.LayoutInflater

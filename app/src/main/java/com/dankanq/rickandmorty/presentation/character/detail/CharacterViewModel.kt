@@ -14,12 +14,10 @@ import com.dankanq.rickandmorty.entity.character.domain.Character
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.flow.shareIn
@@ -38,8 +36,6 @@ class CharacterViewModel @Inject constructor(
 
     private val shouldRetryLoadCharacter = MutableLiveData<Unit>()
     private val shouldRetryLoadEpisodeList = MutableLiveData<Unit>()
-
-    private val loadingFlow = MutableSharedFlow<State>()
 
     private val _character = MutableLiveData<DatabaseResult<*>>()
     val character: LiveData<DatabaseResult<*>>
@@ -61,11 +57,14 @@ class CharacterViewModel @Inject constructor(
         }
     }
 
-    fun getEpisodeList() {
+    fun getEpisodeList(isConnected: Boolean) {
         viewModelScope.launch {
             val result = try {
                 val episodeList = getEpisodeListByIdsUseCase(episodeIds.value ?: "-1")
                 if (episodeList.isNotEmpty()) {
+                    if (episodeList.size < episodeIdsCount && isConnected) {
+                        shouldRetryLoadEpisodeList.value = Unit
+                    }
                     DatabaseResult.Success(episodeList)
                 } else {
                     DatabaseResult.Error("Episode list is empty")
@@ -106,7 +105,6 @@ class CharacterViewModel @Inject constructor(
             loadEpisodeListByIdsUseCase(episodeIds.value!!)
                 .map { State.Success(content = it) as State }
                 .onStart { emit(State.Loading) }
-                .mergeWith(loadingFlow)
                 .retry(2) {
                     delay(1000)
                     true
@@ -173,10 +171,6 @@ class CharacterViewModel @Inject constructor(
             "Dead" -> R.color.dead
             else -> R.color.unknown
         }
-    }
-
-    private fun <T> Flow<T>.mergeWith(secondFlow: Flow<T>): Flow<T> {
-        return merge(this, secondFlow)
     }
 
     sealed class State {

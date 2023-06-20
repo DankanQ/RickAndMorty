@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cl_filter_episodes"
+    android:id="@+id/cl_filter_locations"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -10,13 +10,13 @@
     android:paddingVertical="32dp">
 
     <TextView
-        android:id="@+id/tv_filter_characters"
+        android:id="@+id/tv_filter_locations"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:alpha="0.9"
         android:includeFontPadding="false"
-        android:text="@string/filter_characters"
+        android:text="@string/filter_locations"
         android:textColor="@color/white"
         android:textSize="16sp" />
 
@@ -40,13 +40,32 @@
         tools:ignore="Autofill" />
 
     <EditText
-        android:id="@+id/et_episode"
+        android:id="@+id/et_type"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginTop="16dp"
         android:background="@drawable/background_edit_text"
         android:gravity="center_vertical"
-        android:hint="@string/episode"
+        android:hint="@string/type"
+        android:imeOptions="actionDone"
+        android:inputType="textPersonName"
+        android:paddingStart="16dp"
+        android:paddingEnd="0dp"
+        android:singleLine="true"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        android:textCursorDrawable="@drawable/et_cursor"
+        android:textSize="16sp"
+        tools:ignore="Autofill" />
+
+    <EditText
+        android:id="@+id/et_dimension"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/background_edit_text"
+        android:gravity="center_vertical"
+        android:hint="@string/dimension"
         android:imeOptions="actionDone"
         android:inputType="textPersonName"
         android:paddingStart="16dp"

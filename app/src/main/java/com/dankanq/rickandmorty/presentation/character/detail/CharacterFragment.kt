@@ -20,6 +20,7 @@ import com.dankanq.rickandmorty.RickAndMortyApp
 import com.dankanq.rickandmorty.databinding.FragmentCharacterBinding
 import com.dankanq.rickandmorty.entity.character.domain.Character
 import com.dankanq.rickandmorty.entity.episode.domain.Episode
+import com.dankanq.rickandmorty.presentation.NetworkViewModel
 import com.dankanq.rickandmorty.presentation.character.detail.adapters.EpisodeAdapter
 import com.dankanq.rickandmorty.presentation.character.detail.adapters.InfoSection
 import com.dankanq.rickandmorty.presentation.episode.detail.EpisodeFragment
@@ -41,17 +42,21 @@ class CharacterFragment : Fragment() {
         ViewModelProvider(this, viewModelFactory)[CharacterViewModel::class.java]
     }
 
+    private val networkViewModel by lazy {
+        ViewModelProvider(requireActivity(), viewModelFactory)[NetworkViewModel::class.java]
+    }
+
     private val component by lazy {
         (requireActivity().application as RickAndMortyApp).component
     }
-
-    private var characterId: Long = UNDEFINED_CHARACTER_ID
 
     private val episodesAdapter by lazy {
         EpisodeAdapter()
     }
 
+    private var characterId: Long = UNDEFINED_CHARACTER_ID
     private var hasCharacterLocaleData: Boolean = false
+    private var isConnected: Boolean = false
 
     override fun onAttach(context: Context) {
         component.inject(this)
@@ -84,6 +89,10 @@ class CharacterFragment : Fragment() {
 
         observeCharacterDetail()
         observeEpisodes()
+
+        networkViewModel.isConnected.observe(viewLifecycleOwner) { isConnected ->
+            this.isConnected = isConnected
+        }
 
         viewModel.run {
             setupCharacterId(characterId)
@@ -168,7 +177,7 @@ class CharacterFragment : Fragment() {
 
                                 viewModel.run {
                                     setupEpisodeIds(character.episode)
-                                    getEpisodeList()
+                                    getEpisodeList(isConnected)
                                 }
 
                                 llContent.isVisible = true
@@ -283,7 +292,7 @@ class CharacterFragment : Fragment() {
                             }
                         }
                         is CharacterViewModel.State.Success<*> -> {
-                            viewModel.getEpisodeList()
+                            viewModel.getEpisodeList(isConnected)
                         }
                         is CharacterViewModel.State.Error -> {
                             with(binding) {

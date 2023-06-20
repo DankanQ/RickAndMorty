@@ -10,15 +10,18 @@ import com.dankanq.rickandmorty.data.database.converters.OriginEntityConverter
 import com.dankanq.rickandmorty.data.database.converters.StringListConverter
 import com.dankanq.rickandmorty.data.database.dao.CharacterDao
 import com.dankanq.rickandmorty.data.database.dao.EpisodeDao
+import com.dankanq.rickandmorty.data.database.dao.LocationDao
 import com.dankanq.rickandmorty.entity.character.data.database.CharacterEntity
 import com.dankanq.rickandmorty.entity.episode.data.database.EpisodeEntity
+import com.dankanq.rickandmorty.entity.location.data.database.LocationEntity
 
 @Database(
     entities = [
         CharacterEntity::class,
-        EpisodeEntity::class
+        EpisodeEntity::class,
+        LocationEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(
@@ -29,6 +32,7 @@ import com.dankanq.rickandmorty.entity.episode.data.database.EpisodeEntity
 abstract class AppDatabase : RoomDatabase() {
     abstract fun characterDao(): CharacterDao
     abstract fun episodeDao(): EpisodeDao
+    abstract fun locationDao(): LocationDao
 
     companion object {
         private var database: AppDatabase? = null

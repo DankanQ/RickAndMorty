@@ -1,4 +1,4 @@
-package com.dankanq.rickandmorty.presentation.episode.detail
+package com.dankanq.rickandmorty.presentation.location.detail
 
 import android.content.Context
 import android.os.Bundle
@@ -14,9 +14,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.dankanq.rickandmorty.R
 import com.dankanq.rickandmorty.RickAndMortyApp
-import com.dankanq.rickandmorty.databinding.FragmentEpisodeBinding
+import com.dankanq.rickandmorty.databinding.FragmentLocationBinding
 import com.dankanq.rickandmorty.entity.character.domain.Character
-import com.dankanq.rickandmorty.entity.episode.domain.Episode
+import com.dankanq.rickandmorty.entity.location.domain.Location
 import com.dankanq.rickandmorty.presentation.NetworkViewModel
 import com.dankanq.rickandmorty.presentation.character.detail.CharacterFragment
 import com.dankanq.rickandmorty.utils.presentation.ViewModelFactory
@@ -25,16 +25,16 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class EpisodeFragment : Fragment() {
-    private var _binding: FragmentEpisodeBinding? = null
-    private val binding: FragmentEpisodeBinding
-        get() = _binding ?: throw RuntimeException("FragmentEpisodeBinding is null")
+class LocationFragment : Fragment() {
+    private var _binding: FragmentLocationBinding? = null
+    private val binding: FragmentLocationBinding
+        get() = _binding ?: throw RuntimeException("FragmentLocationBinding is null")
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
 
     private val viewModel by lazy {
-        ViewModelProvider(this, viewModelFactory)[EpisodeViewModel::class.java]
+        ViewModelProvider(this, viewModelFactory)[LocationViewModel::class.java]
     }
 
     private val networkViewModel by lazy {
@@ -49,8 +49,8 @@ class EpisodeFragment : Fragment() {
         CharacterAdapter(requireContext())
     }
 
-    private var episodeId: Long = UNDEFINED_EPISODE_ID
-    private var hasEpisodeLocaleData: Boolean = false
+    private var locationId: Long = UNDEFINED_LOCATION_ID
+    private var hasLocationLocaleData: Boolean = false
     private var isConnected: Boolean = false
 
     override fun onAttach(context: Context) {
@@ -70,7 +70,7 @@ class EpisodeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentEpisodeBinding.inflate(inflater, container, false)
+        _binding = FragmentLocationBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -79,10 +79,10 @@ class EpisodeFragment : Fragment() {
 
         setupAppBarLayout()
         setupSwipeRefreshLayout()
-        setupRetryEpisodeButton()
+        setupRetryLocationButton()
         setupRetryCharacterListButton()
 
-        observeEpisode()
+        observeLocation()
         observeCharacterList()
 
         networkViewModel.isConnected.observe(viewLifecycleOwner) { isConnected ->
@@ -90,8 +90,8 @@ class EpisodeFragment : Fragment() {
         }
 
         viewModel.run {
-            setupEpisodeId(episodeId)
-            getEpisode()
+            setupLocationId(locationId)
+            getLocation()
         }
     }
 
@@ -126,9 +126,9 @@ class EpisodeFragment : Fragment() {
         }
     }
 
-    private fun setupRetryEpisodeButton() {
+    private fun setupRetryLocationButton() {
         binding.mainLoadState.bRetry.setOnClickListener {
-            viewModel.retryLoadEpisode()
+            viewModel.retryLoadLocation()
         }
     }
 
@@ -138,33 +138,33 @@ class EpisodeFragment : Fragment() {
         }
     }
 
-    private fun observeEpisode() {
+    private fun observeLocation() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.episode.observe(viewLifecycleOwner) { result ->
+                viewModel.location.observe(viewLifecycleOwner) { result ->
                     when (result) {
-                        is EpisodeViewModel.DatabaseResult.Success -> {
-                            hasEpisodeLocaleData = true
+                        is LocationViewModel.DatabaseResult.Success -> {
+                            hasLocationLocaleData = true
 
-                            val episode = result.data as Episode
+                            val location = result.data as Location
 
                             with(binding) {
-                                tvName.text = episode.name
-                                tvEpisode.text = episode.episode
-                                tvAirDate.text = episode.airDate
+                                tvName.text = location.name
+                                tvType.text = location.type
+                                tvDimension.text = location.dimension
 
                                 viewModel.run {
-                                    setupCharacterIds(episode.characters)
+                                    setupCharacterIds(location.residents)
                                     getCharacterList(isConnected)
                                 }
 
                                 llContent.isVisible = true
                             }
                         }
-                        is EpisodeViewModel.DatabaseResult.Error -> {
-                            hasEpisodeLocaleData = false
+                        is LocationViewModel.DatabaseResult.Error -> {
+                            hasLocationLocaleData = false
 
-                            viewModel.retryLoadEpisode()
+                            viewModel.retryLoadLocation()
                         }
                     }
                 }
@@ -173,9 +173,9 @@ class EpisodeFragment : Fragment() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.loadEpisodeFlow.collect { state ->
+                viewModel.loadLocationFlow.collect { state ->
                     when (state) {
-                        is EpisodeViewModel.State.Loading -> {
+                        is LocationViewModel.State.Loading -> {
                             with(binding) {
                                 mainLoadState.apply {
                                     progressBar.isVisible = true
@@ -188,7 +188,7 @@ class EpisodeFragment : Fragment() {
                                 llContent.isVisible = false
                             }
                         }
-                        is EpisodeViewModel.State.Success<*> -> {
+                        is LocationViewModel.State.Success<*> -> {
                             with(binding) {
                                 mainLoadState.apply {
                                     progressBar.isVisible = false
@@ -196,18 +196,18 @@ class EpisodeFragment : Fragment() {
                                 }
                                 swipeRefreshLayout.isEnabled = true
 
-                                viewModel.getEpisode()
+                                viewModel.getLocation()
                             }
                         }
-                        is EpisodeViewModel.State.Error -> {
-                            if (hasEpisodeLocaleData) {
+                        is LocationViewModel.State.Error -> {
+                            if (hasLocationLocaleData) {
                                 Toast.makeText(
                                     requireContext(),
                                     "Network error. Unable to refresh the page.",
                                     Toast.LENGTH_SHORT
                                 ).show()
 
-                                viewModel.getEpisode()
+                                viewModel.getLocation()
 
                                 binding.swipeRefreshLayout.isEnabled = true
                             } else {
@@ -230,7 +230,7 @@ class EpisodeFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.characterList.observe(viewLifecycleOwner) { result ->
                     when (result) {
-                        is EpisodeViewModel.DatabaseResult.Success -> {
+                        is LocationViewModel.DatabaseResult.Success -> {
                             val characterList = result.data as List<Character>
 
                             binding.rvCharacters.adapter = characterAdapter
@@ -244,12 +244,12 @@ class EpisodeFragment : Fragment() {
                             characterAdapter.submitList(characterList)
 
                             binding.charactersLoadState.progressBar.isVisible = false
-                            val isEpisodeListDataComplete =
+                            val isLocationListDataComplete =
                                 viewModel.isCharacterListDataComplete(characterList.size)
                             binding.charactersLoadState.llSecondLoadingState.isVisible =
-                                !isEpisodeListDataComplete
+                                !isLocationListDataComplete
                         }
-                        is EpisodeViewModel.DatabaseResult.Error -> {
+                        is LocationViewModel.DatabaseResult.Error -> {
                             viewModel.retryLoadCharacterList()
                         }
                     }
@@ -261,7 +261,7 @@ class EpisodeFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.characterListFlow.collect { state ->
                     when (state) {
-                        is EpisodeViewModel.State.Loading -> {
+                        is LocationViewModel.State.Loading -> {
                             with(binding) {
                                 charactersLoadState.apply {
                                     llSecondLoadingState.isVisible = false
@@ -269,10 +269,10 @@ class EpisodeFragment : Fragment() {
                                 }
                             }
                         }
-                        is EpisodeViewModel.State.Success<*> -> {
+                        is LocationViewModel.State.Success<*> -> {
                             viewModel.getCharacterList(isConnected)
                         }
-                        is EpisodeViewModel.State.Error -> {
+                        is LocationViewModel.State.Error -> {
                             with(binding) {
                                 charactersLoadState.apply {
                                     progressBar.isVisible = false
@@ -291,15 +291,15 @@ class EpisodeFragment : Fragment() {
         if (!args.containsKey(ID_KEY)) {
             throw RuntimeException("Args screen mode is absent")
         }
-        episodeId = args.getLong(ID_KEY)
+        locationId = args.getLong(ID_KEY)
     }
 
     companion object {
         private const val ID_KEY = "id"
-        private const val UNDEFINED_EPISODE_ID = 0L
+        private const val UNDEFINED_LOCATION_ID = 0L
 
-        fun newInstance(id: Long): EpisodeFragment {
-            return EpisodeFragment().apply {
+        fun newInstance(id: Long): LocationFragment {
+            return LocationFragment().apply {
                 arguments = Bundle().apply {
                     putLong(ID_KEY, id)
                 }
