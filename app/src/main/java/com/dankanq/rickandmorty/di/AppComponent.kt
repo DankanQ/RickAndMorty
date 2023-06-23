@@ -2,7 +2,7 @@ package com.dankanq.rickandmorty.di
 
 import android.app.Application
 import com.dankanq.rickandmorty.presentation.character.detail.CharacterFragment
-import com.dankanq.rickandmorty.presentation.character.main.CharactersFragment
+import com.dankanq.rickandmorty.presentation.character.main.CharacterListFragment
 import com.dankanq.rickandmorty.presentation.episode.detail.EpisodeFragment
 import com.dankanq.rickandmorty.presentation.episode.main.EpisodeListFragment
 import com.dankanq.rickandmorty.presentation.location.detail.LocationFragment
@@ -18,7 +18,7 @@ import dagger.Component
     ]
 )
 interface AppComponent {
-    fun inject(fragment: CharactersFragment)
+    fun inject(fragment: CharacterListFragment)
 
     fun inject(fragment: CharacterFragment)
 

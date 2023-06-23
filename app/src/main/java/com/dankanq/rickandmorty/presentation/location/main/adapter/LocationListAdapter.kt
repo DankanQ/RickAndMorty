@@ -7,10 +7,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dankanq.rickandmorty.databinding.ItemLocationBinding
 import com.dankanq.rickandmorty.entity.location.domain.Location
 
-class LocationListAdapter() :
-    PagingDataAdapter<Location, RecyclerView.ViewHolder>(LocationDiffUtilCallback) {
+class LocationListAdapter(
     var onLocationClick: ((Location) -> Unit)? = null
-
+) : PagingDataAdapter<Location, RecyclerView.ViewHolder>(LocationDiffUtilCallback) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val binding = ItemLocationBinding.inflate(
             LayoutInflater.from(parent.context),

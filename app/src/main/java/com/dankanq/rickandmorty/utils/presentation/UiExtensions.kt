@@ -33,25 +33,30 @@ fun EditText.onSearch(callback: () -> Unit) {
 }
 
 fun EditText.addTextChangedListener(
-    searchButton: ImageButton,
     clearTextButton: ImageButton
 ) {
     addTextChangedListener(object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if (text.isNotBlank()) {
-                clearTextButton.isVisible = true
-                searchButton.isVisible = false
-            } else {
-                clearTextButton.isVisible = false
-                searchButton.isVisible = true
-            }
+            clearTextButton.isVisible = text.isNotBlank()
         }
 
         override fun afterTextChanged(s: Editable?) {}
     })
 }
+
+
+fun EditText.onDone(callback: () -> Unit) {
+    setOnEditorActionListener { _, actionId, _ ->
+        if (actionId == EditorInfo.IME_ACTION_DONE) {
+            callback.invoke()
+            true
+        }
+        false
+    }
+}
+
 
 @ExperimentalCoroutinesApi
 fun <T> Flow<T>.simpleScan(count: Int): Flow<List<T?>> {

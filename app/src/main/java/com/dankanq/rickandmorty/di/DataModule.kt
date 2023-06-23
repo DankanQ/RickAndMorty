@@ -14,7 +14,7 @@ import com.dankanq.rickandmorty.data.repository.LocationRepositoryImpl
 import com.dankanq.rickandmorty.domain.character.repository.CharacterRepository
 import com.dankanq.rickandmorty.domain.episode.repository.EpisodeRepository
 import com.dankanq.rickandmorty.domain.location.repository.LocationRepository
-import com.dankanq.rickandmorty.utils.Constants.BASE_URL
+import com.dankanq.rickandmorty.utils.data.Constants.BASE_URL
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

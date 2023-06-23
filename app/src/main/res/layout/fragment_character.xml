@@ -6,58 +6,9 @@
     android:layout_height="match_parent"
     android:background="@color/charade">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
-        app:elevation="0dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:liftOnScroll="true">
-
-        <androidx.appcompat.widget.Toolbar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:contentInsetStart="0dp"
-            app:layout_scrollFlags="scroll|enterAlways">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/charade"
-                android:orientation="horizontal"
-                android:paddingHorizontal="8dp">
-
-                <ImageButton
-                    android:id="@+id/b_back"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
-                    android:alpha="0.7"
-                    android:background="@color/charade"
-                    app:srcCompat="@drawable/ic_back_24"
-                    tools:ignore="ContentDescription,SpeakableTextPresentCheck" />
-
-                <TextView
-                    android:id="@+id/et_search"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_marginEnd="64dp"
-                    android:layout_weight="1"
-                    android:alpha="0.7"
-                    android:gravity="center"
-                    android:includeFontPadding="false"
-                    android:text="@string/character_detail"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-        </androidx.appcompat.widget.Toolbar>
-
-    </com.google.android.material.appbar.AppBarLayout>
+    <include
+        android:id="@+id/layout_app_bar_detail"
+        layout="@layout/layout_app_bar_detail" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -66,7 +17,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefreshLayout"
+            android:id="@+id/swipe_refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -84,7 +35,9 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:paddingVertical="32dp">
+                    android:paddingVertical="32dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="132dp"
@@ -110,14 +63,9 @@
 
                     <TextView
                         android:id="@+id/tv_name"
-                        android:layout_width="wrap_content"
+                        style="@style/DetailName"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:alpha="0.9"
-                        android:gravity="center"
-                        android:textColor="@color/teal"
-                        android:textSize="28sp"
-                        android:textStyle="bold"
                         tools:text="Name" />
 
                     <com.google.android.material.card.MaterialCardView
@@ -171,6 +119,7 @@
                         android:visibility="gone"
                         app:cardBackgroundColor="@color/ship_gray"
                         app:cardCornerRadius="16dp"
+                        app:rippleColor="@color/white"
                         tools:visibility="visible">
 
                         <LinearLayout
@@ -215,7 +164,8 @@
                         android:layout_marginHorizontal="24dp"
                         android:layout_marginTop="16dp"
                         app:cardBackgroundColor="@color/ship_gray"
-                        app:cardCornerRadius="16dp">
+                        app:cardCornerRadius="16dp"
+                        app:rippleColor="@color/white">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -299,7 +249,7 @@
                                     tools:listitem="@layout/item_episode" />
 
                                 <include
-                                    android:id="@+id/episodes_load_state"
+                                    android:id="@+id/second_load_state"
                                     layout="@layout/second_load_state"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
@@ -327,6 +277,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="56dp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

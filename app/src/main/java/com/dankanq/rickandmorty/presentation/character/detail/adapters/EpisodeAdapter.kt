@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dankanq.rickandmorty.databinding.ItemEpisodeBinding
 import com.dankanq.rickandmorty.entity.episode.domain.Episode
 import com.dankanq.rickandmorty.utils.presentation.diffutil.EpisodeDiffUtilCallback
-import com.dankanq.rickandmorty.utils.presentation.viewholder.EpisodeViewHolder
+import com.dankanq.rickandmorty.utils.presentation.adapter.viewholder.EpisodeViewHolder
 
 class EpisodeAdapter(
     var onEpisodeClick: ((Episode) -> Unit)? = null

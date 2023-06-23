@@ -7,12 +7,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dankanq.rickandmorty.databinding.ItemEpisodeBinding
 import com.dankanq.rickandmorty.entity.episode.domain.Episode
 import com.dankanq.rickandmorty.utils.presentation.diffutil.EpisodeDiffUtilCallback
-import com.dankanq.rickandmorty.utils.presentation.viewholder.EpisodeViewHolder
+import com.dankanq.rickandmorty.utils.presentation.adapter.viewholder.EpisodeViewHolder
 
-class EpisodeListAdapter() :
-    PagingDataAdapter<Episode, RecyclerView.ViewHolder>(EpisodeDiffUtilCallback) {
+class EpisodeListAdapter(
     var onEpisodeClick: ((Episode) -> Unit)? = null
-
+) : PagingDataAdapter<Episode, RecyclerView.ViewHolder>(EpisodeDiffUtilCallback) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val binding = ItemEpisodeBinding.inflate(
             LayoutInflater.from(parent.context),

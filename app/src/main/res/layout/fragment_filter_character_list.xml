@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_filter_characters"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="32dp"
+    android:paddingVertical="32dp">
+
+    <TextView
+        android:id="@+id/tv_filter_characters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:alpha="0.9"
+        android:includeFontPadding="false"
+        android:text="@string/filter_characters"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/et_name"
+        style="@style/FilterEditText"
+        android:layout_marginTop="32dp"
+        android:hint="@string/name"
+        android:imeOptions="actionDone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_filter_characters"
+        tools:ignore="Autofill" />
+
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:alpha="0.9"
+        android:includeFontPadding="false"
+        android:text="@string/status"
+        app:layout_constraintStart_toStartOf="@id/et_name"
+        app:layout_constraintTop_toBottomOf="@id/et_name" />
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/btg_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_status"
+        app:layout_constraintEnd_toEndOf="@+id/et_name"
+        app:layout_constraintTop_toTopOf="@id/tv_status"
+        app:singleSelection="true">
+
+        <Button
+            android:id="@+id/b_grid_alive"
+            style="@style/ToggleButtonWithIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:alpha="0.7"
+            android:text="@string/alive"
+            android:textAllCaps="false"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/b_grid_dead"
+            style="@style/ToggleButtonWithIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:alpha="0.7"
+            android:text="@string/dead"
+            android:textAllCaps="false"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/b_grid_status_unknown"
+            style="@style/ToggleButtonWithIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:alpha="0.7"
+            android:text="@string/unknown"
+            android:textAllCaps="false"
+            android:textSize="12sp" />
+
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <TextView
+        android:id="@+id/tv_gender"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:alpha="0.9"
+        android:includeFontPadding="false"
+        android:text="@string/gender"
+        app:layout_constraintStart_toStartOf="@id/et_name"
+        app:layout_constraintTop_toBottomOf="@id/btg_status" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_gender"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:endIconTint="@color/icon"
+        app:layout_constraintBottom_toBottomOf="@id/tv_gender"
+        app:layout_constraintEnd_toEndOf="@+id/et_name"
+        app:layout_constraintStart_toStartOf="@+id/btg_status"
+        app:layout_constraintTop_toTopOf="@id/tv_gender"
+        app:startIconDrawable="@drawable/ic_gender_24"
+        app:startIconTint="@color/icon">
+
+        <AutoCompleteTextView
+            android:id="@+id/gender"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="6dp"
+            android:alpha="0.7"
+            android:background="@android:color/transparent"
+            android:backgroundTint="@android:color/transparent"
+            android:gravity="center"
+            android:inputType="none"
+            android:paddingTop="4dp"
+            android:paddingBottom="6dp"
+            android:textAllCaps="false"
+            android:textColor="@color/text"
+            android:textSize="14sp"
+            tools:ignore="DuplicateSpeakableTextCheck,LabelFor,RtlSymmetry,TextContrastCheck"
+            tools:text="Female" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <EditText
+        android:id="@+id/et_species"
+        style="@style/FilterEditText"
+        android:layout_width="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="@string/species"
+        android:imeOptions="actionNext"
+        app:layout_constraintEnd_toStartOf="@id/et_type"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/til_gender"
+        tools:ignore="Autofill" />
+
+    <EditText
+        android:id="@+id/et_type"
+        style="@style/FilterEditText"
+        android:layout_width="0dp"
+        android:layout_marginTop="16dp"
+        android:hint="@string/type"
+        android:imeOptions="actionDone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/et_species"
+        app:layout_constraintTop_toBottomOf="@id/til_gender"
+        tools:ignore="Autofill" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/b_search"
+        style="@style/SearchButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/et_species" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

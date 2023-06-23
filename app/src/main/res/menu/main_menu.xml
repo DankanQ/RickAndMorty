@@ -5,11 +5,11 @@
         android:icon="@drawable/ic_character_24"
         android:title="@string/characters" />
     <item
-        android:id="@+id/episodes"
-        android:icon="@drawable/ic_episode_24"
-        android:title="@string/episodes" />
-    <item
         android:id="@+id/locations"
         android:icon="@drawable/ic_location_24"
         android:title="@string/locations" />
+    <item
+        android:id="@+id/episodes"
+        android:icon="@drawable/ic_episode_24"
+        android:title="@string/episodes" />
 </menu>

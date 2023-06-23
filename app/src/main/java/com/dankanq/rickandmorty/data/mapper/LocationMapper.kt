@@ -3,7 +3,7 @@ package com.dankanq.rickandmorty.data.mapper
 import com.dankanq.rickandmorty.entity.location.data.database.LocationEntity
 import com.dankanq.rickandmorty.entity.location.data.network.LocationDto
 import com.dankanq.rickandmorty.entity.location.domain.Location
-import com.dankanq.rickandmorty.utils.Constants.NULL_STRING
+import com.dankanq.rickandmorty.utils.data.Constants.NULL_STRING
 import com.dankanq.rickandmorty.utils.data.formatDateString
 import javax.inject.Inject
 

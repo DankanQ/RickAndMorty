@@ -15,7 +15,7 @@ interface CharacterApi {
         @Query("status") status: String? = null,
         @Query("species") species: String? = null,
         @Query("type") type: String? = null,
-        @Query("gender") gender: String? = null,
+        @Query("gender") gender: String? = null
     ): CharacterListDto
 
     @GET("character/{id}")

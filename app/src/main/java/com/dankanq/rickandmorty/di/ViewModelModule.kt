@@ -1,9 +1,9 @@
 package com.dankanq.rickandmorty.di
 
 import androidx.lifecycle.ViewModel
-import com.dankanq.rickandmorty.presentation.NetworkViewModel
+import com.dankanq.rickandmorty.utils.presentation.viewmodel.NetworkViewModel
 import com.dankanq.rickandmorty.presentation.character.detail.CharacterViewModel
-import com.dankanq.rickandmorty.presentation.character.main.CharactersViewModel
+import com.dankanq.rickandmorty.presentation.character.main.CharacterListViewModel
 import com.dankanq.rickandmorty.presentation.episode.detail.EpisodeViewModel
 import com.dankanq.rickandmorty.presentation.episode.main.EpisodeListViewModel
 import com.dankanq.rickandmorty.presentation.location.detail.LocationViewModel
@@ -16,8 +16,8 @@ import dagger.multibindings.IntoMap
 interface ViewModelModule {
     @Binds
     @IntoMap
-    @ViewModelKey(CharactersViewModel::class)
-    fun bindCharactersViewModel(viewModel: CharactersViewModel): ViewModel
+    @ViewModelKey(CharacterListViewModel::class)
+    fun bindCharacterListViewModel(viewModel: CharacterListViewModel): ViewModel
 
     @Binds
     @IntoMap

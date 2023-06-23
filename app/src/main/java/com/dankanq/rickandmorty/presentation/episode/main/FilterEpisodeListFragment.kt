@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.setFragmentResult
 import com.dankanq.rickandmorty.R
 import com.dankanq.rickandmorty.databinding.FragmentFilterEpisodeListBinding
+import com.dankanq.rickandmorty.utils.presentation.onDone
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -51,6 +52,7 @@ class FilterEpisodeListFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupInputs()
         setupSearchButton()
     }
 
@@ -58,6 +60,13 @@ class FilterEpisodeListFragment : BottomSheetDialogFragment() {
         super.onDestroyView()
 
         _binding = null
+    }
+
+    private fun setupInputs() {
+        with(binding) {
+            etName.onDone { etName.clearFocus() }
+            etEpisode.onDone { etEpisode.clearFocus() }
+        }
     }
 
     private fun setupSearchButton() {
