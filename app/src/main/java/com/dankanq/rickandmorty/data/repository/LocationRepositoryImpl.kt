@@ -11,7 +11,7 @@ import com.dankanq.rickandmorty.data.network.LocationApi
 import com.dankanq.rickandmorty.data.paging.LocationRemoteMediator
 import com.dankanq.rickandmorty.domain.location.repository.LocationRepository
 import com.dankanq.rickandmorty.entity.location.domain.Location
-import com.dankanq.rickandmorty.utils.Constants.PAGE_SIZE
+import com.dankanq.rickandmorty.utils.data.Constants.PAGE_SIZE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

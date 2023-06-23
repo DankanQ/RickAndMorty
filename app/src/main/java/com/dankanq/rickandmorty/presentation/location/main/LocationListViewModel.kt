@@ -15,9 +15,9 @@ import javax.inject.Inject
 class LocationListViewModel @Inject constructor(
     private val getLocationListUseCase: GetLocationListUseCase
 ) : ViewModel() {
-    private val filterParams = MutableLiveData(LocationFilterParams())
+    private val locationFilterParams = MutableLiveData(LocationFilterParams())
 
-    val locationListFlow = filterParams.asFlow()
+    val locationListFlow = locationFilterParams.asFlow()
         .distinctUntilChanged()
         .flatMapLatest { params ->
             getLocationListUseCase(
@@ -29,7 +29,11 @@ class LocationListViewModel @Inject constructor(
         .cachedIn(viewModelScope)
 
     fun applyFilters(params: LocationFilterParams) {
-        filterParams.value = params
+        locationFilterParams.value = params
+    }
+
+    fun clearFilters() {
+        locationFilterParams.value = LocationFilterParams()
     }
 
     data class LocationFilterParams(

@@ -12,7 +12,7 @@ import com.dankanq.rickandmorty.data.paging.EpisodeRemoteMediator
 import com.dankanq.rickandmorty.domain.episode.repository.EpisodeRepository
 import com.dankanq.rickandmorty.entity.episode.data.network.EpisodeDto
 import com.dankanq.rickandmorty.entity.episode.domain.Episode
-import com.dankanq.rickandmorty.utils.Constants.PAGE_SIZE
+import com.dankanq.rickandmorty.utils.data.Constants.PAGE_SIZE
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers

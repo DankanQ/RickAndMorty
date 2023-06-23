@@ -12,7 +12,7 @@ import com.dankanq.rickandmorty.data.paging.CharacterRemoteMediator
 import com.dankanq.rickandmorty.domain.character.repository.CharacterRepository
 import com.dankanq.rickandmorty.entity.character.data.network.CharacterDto
 import com.dankanq.rickandmorty.entity.character.domain.Character
-import com.dankanq.rickandmorty.utils.Constants.PAGE_SIZE
+import com.dankanq.rickandmorty.utils.data.Constants.PAGE_SIZE
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
@@ -30,8 +30,6 @@ class CharacterRepositoryImpl @Inject constructor(
     private val characterRemoteMediatorFactory: CharacterRemoteMediator.Factory,
     private val characterMapper: CharacterMapper
 ) : CharacterRepository {
-//    private val refreshEvents = MutableSharedFlow<Unit>()
-
     override fun getCharacterList(
         name: String?,
         status: String?,
@@ -118,8 +116,4 @@ class CharacterRepositoryImpl @Inject constructor(
 
         emit(Unit)
     }.flowOn(Dispatchers.IO)
-
-//    override suspend fun refresh() {
-//        refreshEvents.emit(Unit)
-//    }
 }

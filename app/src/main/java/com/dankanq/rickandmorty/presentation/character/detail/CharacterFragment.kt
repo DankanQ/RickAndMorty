@@ -20,11 +20,14 @@ import com.dankanq.rickandmorty.RickAndMortyApp
 import com.dankanq.rickandmorty.databinding.FragmentCharacterBinding
 import com.dankanq.rickandmorty.entity.character.domain.Character
 import com.dankanq.rickandmorty.entity.episode.domain.Episode
-import com.dankanq.rickandmorty.presentation.NetworkViewModel
 import com.dankanq.rickandmorty.presentation.character.detail.adapters.EpisodeAdapter
 import com.dankanq.rickandmorty.presentation.character.detail.adapters.InfoSection
 import com.dankanq.rickandmorty.presentation.episode.detail.EpisodeFragment
-import com.dankanq.rickandmorty.utils.presentation.ViewModelFactory
+import com.dankanq.rickandmorty.presentation.location.detail.LocationFragment
+import com.dankanq.rickandmorty.utils.domain.State
+import com.dankanq.rickandmorty.utils.presentation.viewmodel.NetworkViewModel
+import com.dankanq.rickandmorty.utils.presentation.viewmodel.ViewModelFactory
+import com.dankanq.rickandmorty.utils.presentation.model.DatabaseResult
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter
 import kotlinx.coroutines.launch
@@ -103,7 +106,7 @@ class CharacterFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation_view)
             .isVisible = false
     }
 
@@ -114,8 +117,11 @@ class CharacterFragment : Fragment() {
     }
 
     private fun setupAppBarLayout() {
-        binding.bBack.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
+        binding.layoutAppBarDetail.apply {
+            tvLabel.text = getText(R.string.character_detail)
+            bBack.setOnClickListener {
+                requireActivity().supportFragmentManager.popBackStack()
+            }
         }
     }
 
@@ -125,9 +131,9 @@ class CharacterFragment : Fragment() {
                 viewModel.refresh()
             }
             setColorSchemeResources(
-                R.color.white, R.color.white
+                R.color.loading, R.color.loading
             )
-            setProgressBackgroundColorSchemeResource(R.color.ship_gray)
+            setProgressBackgroundColorSchemeResource(R.color.charade)
         }
     }
 
@@ -138,7 +144,7 @@ class CharacterFragment : Fragment() {
     }
 
     private fun setupRetryEpisodeListButton() {
-        binding.episodesLoadState.bRetrySecond.setOnClickListener {
+        binding.secondLoadState.bRetrySecond.setOnClickListener {
             viewModel.retryLoadEpisodeList()
         }
     }
@@ -148,7 +154,7 @@ class CharacterFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.character.observe(viewLifecycleOwner) { result ->
                     when (result) {
-                        is CharacterViewModel.DatabaseResult.Success -> {
+                        is DatabaseResult.Success -> {
                             hasCharacterLocaleData = true
 
                             val character = result.data as Character
@@ -165,27 +171,20 @@ class CharacterFragment : Fragment() {
 
                                 setupOrigin(character.origin)
 
-                                tvLocation.apply {
-                                    text = viewModel.getParsedLocationName(character.location.name)
-                                    setTextColor(
-                                        ContextCompat.getColor(
-                                            requireContext(),
-                                            viewModel.getColorIdByStatus(character.status)
-                                        )
-                                    )
-                                }
+                                setupLocation(character.location, character.status)
 
                                 viewModel.run {
                                     setupEpisodeIds(character.episode)
                                     getEpisodeList(isConnected)
                                 }
 
+                                swipeRefreshLayout.isEnabled = true
                                 llContent.isVisible = true
                             }
                         }
-                        is CharacterViewModel.DatabaseResult.Error -> {
+                        is DatabaseResult.Error -> {
                             hasCharacterLocaleData = false
-
+                            binding.llContent.isVisible = false
                             viewModel.retryLoadCharacter()
                         }
                     }
@@ -195,51 +194,49 @@ class CharacterFragment : Fragment() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.loadCharacterDetailFlow.collect { state ->
+                viewModel.loadCharacterFlow.collect { state ->
                     when (state) {
-                        is CharacterViewModel.State.Loading -> {
+                        is State.Loading -> {
                             with(binding) {
-                                mainLoadState.apply {
-                                    progressBar.isVisible = true
-                                    llMainLoadingState.isVisible = false
+                                mainLoadState.llMainLoadingState.isVisible = false
+                                swipeRefreshLayout.apply {
+                                    isEnabled = false
+                                    isRefreshing = true
                                 }
-                                swipeRefreshLayout.isEnabled = false
-                                if (mainLoadState.progressBar.isVisible) {
-                                    swipeRefreshLayout.isRefreshing = false
-                                }
-                                llContent.isVisible = false
                             }
                         }
-                        is CharacterViewModel.State.Success<*> -> {
+                        is State.Success<*> -> {
                             with(binding) {
-                                mainLoadState.apply {
-                                    progressBar.isVisible = false
-                                    llMainLoadingState.isVisible = false
+                                mainLoadState.llMainLoadingState.isVisible = false
+                                swipeRefreshLayout.apply {
+                                    isEnabled = true
+                                    isRefreshing = false
                                 }
-                                swipeRefreshLayout.isEnabled = true
 
                                 viewModel.getCharacter()
                             }
                         }
-                        is CharacterViewModel.State.Error -> {
+                        is State.Error -> {
                             if (hasCharacterLocaleData) {
                                 Toast.makeText(
                                     requireContext(),
-                                    "Network error. Unable to refresh the page.",
+                                    getString(R.string.error_cant_refresh_detail),
                                     Toast.LENGTH_SHORT
                                 ).show()
 
                                 viewModel.getCharacter()
 
-                                binding.swipeRefreshLayout.isEnabled = true
                             } else {
-                                with(binding) {
-                                    mainLoadState.llMainLoadingState.isVisible = true
-                                    llContent.isVisible = false
-                                    swipeRefreshLayout.isEnabled = false
+                                binding.mainLoadState.apply {
+                                    tvLoadError.text = getString(R.string.error_network)
+                                    tvLoadErrorInfo.isVisible = false
+                                    llMainLoadingState.isVisible = true
                                 }
                             }
-                            binding.mainLoadState.progressBar.isVisible = false
+                            binding.swipeRefreshLayout.apply {
+                                isRefreshing = false
+                                isEnabled = false
+                            }
                         }
                     }
                 }
@@ -252,7 +249,7 @@ class CharacterFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.episodeList.observe(viewLifecycleOwner) { result ->
                     when (result) {
-                        is CharacterViewModel.DatabaseResult.Success -> {
+                        is DatabaseResult.Success -> {
                             val episodeList = result.data as List<Episode>
 
                             binding.rvEpisodes.adapter = episodesAdapter
@@ -265,13 +262,14 @@ class CharacterFragment : Fragment() {
                             }
                             episodesAdapter.submitList(episodeList)
 
-                            binding.episodesLoadState.progressBar.isVisible = false
                             val isEpisodeListDataComplete =
                                 viewModel.isEpisodeListDataComplete(episodeList.size)
-                            binding.episodesLoadState.llSecondLoadingState.isVisible =
-                                !isEpisodeListDataComplete
+                            binding.secondLoadState.apply {
+                                llSecondLoadState.isVisible = !isEpisodeListDataComplete
+                                progressBar.isVisible = false
+                            }
                         }
-                        is CharacterViewModel.DatabaseResult.Error -> {
+                        is DatabaseResult.Error -> {
                             viewModel.retryLoadEpisodeList()
                         }
                     }
@@ -281,24 +279,24 @@ class CharacterFragment : Fragment() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.episodesFlow.collect { state ->
+                viewModel.episodeListFlow.collect { state ->
                     when (state) {
-                        is CharacterViewModel.State.Loading -> {
+                        is State.Loading -> {
                             with(binding) {
-                                episodesLoadState.apply {
-                                    llSecondLoadingState.isVisible = false
+                                secondLoadState.apply {
+                                    llSecondLoadState.isVisible = false
                                     progressBar.isVisible = true
                                 }
                             }
                         }
-                        is CharacterViewModel.State.Success<*> -> {
+                        is State.Success<*> -> {
                             viewModel.getEpisodeList(isConnected)
                         }
-                        is CharacterViewModel.State.Error -> {
+                        is State.Error -> {
                             with(binding) {
-                                episodesLoadState.apply {
+                                secondLoadState.apply {
                                     progressBar.isVisible = false
-                                    llSecondLoadingState.isVisible = true
+                                    llSecondLoadState.isVisible = true
                                 }
                             }
                         }
@@ -329,8 +327,40 @@ class CharacterFragment : Fragment() {
                     tvOrigin.text = origin.name
                     cvOrigin.isVisible = true
                 }
+
+                val originId = origin.url.substringAfterLast("/").toLong()
+                binding.cvOrigin.setOnClickListener {
+                    launchLocationFragment(originId)
+                }
             }
         }
+    }
+
+    private fun setupLocation(location: Character.Location, status: String) {
+        with(binding) {
+            tvLocation.apply {
+                text = viewModel.getParsedLocationName(location.name)
+                setTextColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        viewModel.getColorIdByStatus(status)
+                    )
+                )
+            }
+
+            val locationId = location.url.substringAfterLast("/").toLong()
+            cvLocation.setOnClickListener {
+                launchLocationFragment(locationId)
+            }
+        }
+    }
+
+    private fun launchLocationFragment(id: Long) {
+        val fragment = LocationFragment.newInstance(id)
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container_view, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun parseArgs() {

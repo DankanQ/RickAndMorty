@@ -26,30 +26,64 @@ interface CharacterDao {
         gender: String?
     ): PagingSource<Int, CharacterEntity>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun save(characterList: List<CharacterEntity>)
-
-    @Query("DELETE FROM characters")
-    suspend fun clear()
+    @Query(
+        "DELETE FROM characters " +
+                "WHERE (:name IS NULL OR name LIKE '%' || :name  || '%') " +
+                "AND (:status IS NULL OR status LIKE '%' || :status  || '%') " +
+                "AND (:species IS NULL OR species LIKE '%' || :species  || '%') " +
+                "AND (:type IS NULL OR type LIKE '%' || :type  || '%') " +
+                "AND (:gender IS NULL OR gender LIKE '%' || :gender  || '%')"
+    )
+    suspend fun clear(
+        name: String?,
+        status: String?,
+        species: String?,
+        type: String?,
+        gender: String?
+    )
 
     @Transaction
-    suspend fun refreshWithInternet(characterList: List<CharacterEntity>) {
-        clear()
-        save(characterList)
+    suspend fun refresh(
+        characters: List<CharacterEntity>,
+        name: String?,
+        species: String?,
+        type: String?,
+        gender: String?,
+        status: String?,
+    ) {
+        clear(name, status, species, type, gender)
+        insertCharacterList(characters)
     }
+
+    @Query(
+        "SELECT COUNT(*) FROM characters " +
+                "WHERE (:name IS NULL OR name LIKE '%' || :name  || '%') " +
+                "AND (:status IS NULL OR status LIKE '%' || :status  || '%') " +
+                "AND (:species IS NULL OR species LIKE '%' || :species  || '%') " +
+                "AND (:type IS NULL OR type LIKE '%' || :type  || '%') " +
+                "AND (:gender IS NULL OR gender LIKE '%' || :gender  || '%')"
+    )
+    suspend fun getCharacterCount(
+        name: String?,
+        status: String?,
+        species: String?,
+        type: String?,
+        gender: String?
+    ): Int
 
     @Transaction
-    suspend fun refresh(characterList: List<CharacterEntity>) {
-        clear()
-        save(characterList)
+    suspend fun hasData(
+        name: String?,
+        status: String?,
+        species: String?,
+        type: String?,
+        gender: String?
+    ): Boolean {
+        return getCharacterCount(name, status, species, type, gender) > 0
     }
-
-    @Query("SELECT COUNT(*) FROM characters")
-    suspend fun getCharacterCount(): Int
 
     @Query("SELECT * FROM characters WHERE id == :id LIMIT 1")
     fun getCharacter(id: Long): CharacterEntity
-
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCharacter(character: CharacterEntity)

@@ -22,21 +22,41 @@ interface LocationDao {
         dimension: String?,
     ): PagingSource<Int, LocationEntity>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun save(locationList: List<LocationEntity>)
-
-    @Query("DELETE FROM locations")
-    suspend fun clear()
+    @Query(
+        "DELETE FROM locations " +
+                "WHERE (:name IS NULL OR name LIKE '%' || :name  || '%') " +
+                "AND (:type IS NULL OR type LIKE '%' || :type  || '%') " +
+                "AND (:dimension IS NULL OR dimension LIKE '%' || :dimension  || '%')"
+    )
+    suspend fun clear(
+        name: String?,
+        type: String?,
+        dimension: String?
+    )
 
     @Transaction
-    suspend fun refresh(locationList: List<LocationEntity>) {
-        clear()
-        save(locationList)
+    suspend fun refresh(
+        locationList: List<LocationEntity>,
+        name: String?,
+        type: String?,
+        dimension: String?,
+    ) {
+        clear(name, type, dimension)
+        insertLocationList(locationList)
     }
 
-    @Query("SELECT COUNT(*) FROM locations")
-    suspend fun getLocationsCount(): Int
+    @Query(
+        "SELECT COUNT(*) FROM locations " +
+                "WHERE (:name IS NULL OR name LIKE '%' || :name  || '%') " +
+                "AND (:type IS NULL OR type LIKE '%' || :type  || '%') " +
+                "AND (:dimension IS NULL OR dimension LIKE '%' || :dimension  || '%')"
+    )
+    suspend fun getLocationCount(name: String?, type: String?, dimension: String?): Int
 
+    @Transaction
+    suspend fun hasData(name: String?, type: String?, dimension: String?): Boolean {
+        return getLocationCount(name, type, dimension) > 0
+    }
 
     @Query("SELECT * FROM locations WHERE id == :id LIMIT 1")
     fun getLocation(id: Long): LocationEntity

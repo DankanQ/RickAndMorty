@@ -8,7 +8,8 @@ import com.dankanq.rickandmorty.data.database.dao.EpisodeDao
 import com.dankanq.rickandmorty.data.mapper.EpisodeMapper
 import com.dankanq.rickandmorty.data.network.EpisodeApi
 import com.dankanq.rickandmorty.entity.episode.data.database.EpisodeEntity
-import com.dankanq.rickandmorty.utils.Constants.PAGE_SIZE
+import com.dankanq.rickandmorty.utils.data.Constants.PAGE_SIZE
+import com.dankanq.rickandmorty.utils.presentation.model.LoadError
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -29,39 +30,40 @@ class EpisodeRemoteMediator @AssistedInject constructor(
         loadType: LoadType,
         state: PagingState<Int, EpisodeEntity>
     ): MediatorResult {
+        var hasData = false
+
         return try {
             pageIndex = getPageIndex(loadType)
                 ?: return MediatorResult.Success(endOfPaginationReached = true)
 
-            val episodeList = fetchEpisodeList()
+            hasData = episodeDao.hasData(name, episode)
+
+            val episodeList = loadEpisodeList()
             if (loadType == LoadType.REFRESH) {
-                episodeDao.refresh(episodeList)
+                episodeDao.refresh(
+                    episodeList,
+                    name, episode
+                )
             } else {
-                episodeDao.save(episodeList)
+                episodeDao.insertEpisodeList(episodeList)
             }
+
             MediatorResult.Success(
                 endOfPaginationReached = episodeList.size < PAGE_SIZE
             )
         } catch (e: IOException) {
-            if (episodeDao.getEpisodesCount() > 0) {
-                return MediatorResult.Error(
-                    LoadError.NetworkError(
-                        true,
-                        "Ошибка сети: ${e.message}"
-                    )
+            val episodeCount = episodeDao.getEpisodeCount(name, episode)
+            return MediatorResult.Error(
+                LoadError.NetworkError(
+                    e.message.toString(),
+                    hasData,
+                    episodeCount
                 )
-            } else {
-                return MediatorResult.Error(
-                    LoadError.NetworkError(
-                        false,
-                        "Ошибка сети: ${e.message}"
-                    )
-                )
-            }
+            )
         } catch (e: HttpException) {
             return MediatorResult.Error(LoadError.HttpError(e.code()))
         } catch (e: Exception) {
-            return MediatorResult.Error(LoadError.UnknownError)
+            return MediatorResult.Error(LoadError.UnknownError(hasData))
         }
     }
 
@@ -74,7 +76,7 @@ class EpisodeRemoteMediator @AssistedInject constructor(
         return pageIndex
     }
 
-    private suspend fun fetchEpisodeList(): List<EpisodeEntity> {
+    private suspend fun loadEpisodeList(): List<EpisodeEntity> {
         return episodeApi.getEpisodeList(
             pageIndex,
             name = name,
@@ -82,16 +84,6 @@ class EpisodeRemoteMediator @AssistedInject constructor(
         )
             .episodeList
             .map { episodeMapper.mapEpisodeDtoToEntity(it) }
-    }
-
-    sealed class LoadError : Exception() {
-        data class NetworkError(
-            val hasData: Boolean,
-            override val message: String
-        ) : LoadError()
-
-        data class HttpError(val code: Int) : LoadError()
-        object UnknownError : LoadError()
     }
 
     @AssistedFactory

@@ -13,11 +13,10 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.RickAndMorty"
+        android:theme="@style/splashScreenTheme"
         tools:targetApi="33">
         <activity
             android:name=".presentation.MainActivity"
-            android:configChanges="orientation|screenSize|screenLayout|locale|fontScale|uiMode|keyboardHidden|navigation"
             android:exported="true"
             android:windowSoftInputMode="adjustNothing">
             <intent-filter>

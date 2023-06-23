@@ -9,6 +9,8 @@ import com.dankanq.rickandmorty.domain.character.usecase.GetCharacterListByIdsUs
 import com.dankanq.rickandmorty.domain.character.usecase.LoadCharacterListByIdsUseCase
 import com.dankanq.rickandmorty.domain.episode.usecase.GetEpisodeUseCase
 import com.dankanq.rickandmorty.domain.episode.usecase.LoadEpisodeUseCase
+import com.dankanq.rickandmorty.utils.domain.State
+import com.dankanq.rickandmorty.utils.presentation.model.DatabaseResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -74,21 +76,12 @@ class EpisodeViewModel @Inject constructor(
         }
     }
 
-    sealed class DatabaseResult<out T> {
-        data class Success<out T>(val data: T) : DatabaseResult<T>()
-        data class Error(val message: String) : DatabaseResult<Nothing>()
-    }
-
     @OptIn(ExperimentalCoroutinesApi::class)
     val loadEpisodeFlow: Flow<State> = shouldRetryLoadEpisode.asFlow()
         .flatMapLatest {
             loadEpisodeUseCase(episodeId.value!!)
                 .map { State.Success(content = it) as State }
                 .onStart { emit(State.Loading) }
-                .retry(2) {
-                    delay(1000)
-                    true
-                }
                 .catch { emit(State.Error) }
         }
         .shareIn(
@@ -141,11 +134,5 @@ class EpisodeViewModel @Inject constructor(
 
     fun isCharacterListDataComplete(characterIdsCountFromDatabase: Int): Boolean {
         return characterIdsCountFromDatabase >= characterIdsCount
-    }
-
-    sealed class State {
-        object Loading : State()
-        data class Success<T>(val content: T) : State()
-        object Error : State()
     }
 }

@@ -11,6 +11,8 @@ import com.dankanq.rickandmorty.domain.character.usecase.LoadCharacterUseCase
 import com.dankanq.rickandmorty.domain.episode.usecase.GetEpisodeListByIdsUseCase
 import com.dankanq.rickandmorty.domain.episode.usecase.LoadEpisodeListByIdsUseCase
 import com.dankanq.rickandmorty.entity.character.domain.Character
+import com.dankanq.rickandmorty.utils.domain.State
+import com.dankanq.rickandmorty.utils.presentation.model.DatabaseResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -76,21 +78,12 @@ class CharacterViewModel @Inject constructor(
         }
     }
 
-    sealed class DatabaseResult<out T> {
-        data class Success<out T>(val data: T) : DatabaseResult<T>()
-        data class Error(val message: String) : DatabaseResult<Nothing>()
-    }
-
     @OptIn(ExperimentalCoroutinesApi::class)
-    val loadCharacterDetailFlow: Flow<State> = shouldRetryLoadCharacter.asFlow()
+    val loadCharacterFlow: Flow<State> = shouldRetryLoadCharacter.asFlow()
         .flatMapLatest {
             loadCharacterUseCase(characterId.value!!)
                 .map { State.Success(content = it) as State }
                 .onStart { emit(State.Loading) }
-                .retry(2) {
-                    delay(1000)
-                    true
-                }
                 .catch { emit(State.Error) }
         }
         .shareIn(
@@ -100,7 +93,7 @@ class CharacterViewModel @Inject constructor(
         )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val episodesFlow: Flow<State> = shouldRetryLoadEpisodeList.asFlow()
+    val episodeListFlow: Flow<State> = shouldRetryLoadEpisodeList.asFlow()
         .flatMapLatest {
             loadEpisodeListByIdsUseCase(episodeIds.value!!)
                 .map { State.Success(content = it) as State }
@@ -171,11 +164,5 @@ class CharacterViewModel @Inject constructor(
             "Dead" -> R.color.dead
             else -> R.color.unknown
         }
-    }
-
-    sealed class State {
-        object Loading : State()
-        data class Success<T>(val content: T) : State()
-        object Error : State()
     }
 }

@@ -10,11 +10,11 @@
         android:id="@+id/fragment_container_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
+        app:layout_constraintBottom_toTopOf="@id/tv_network_state"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:layout="@layout/fragment_characters" />
+        tools:layout="@layout/fragment_character_list" />
 
     <TextView
         android:id="@+id/tv_network_state"
@@ -24,11 +24,11 @@
         android:gravity="center"
         android:text="@string/network_state_error"
         android:textColor="@color/white"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_view"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigationView"
+        android:id="@+id/bottom_navigation_view"
         android:layout_width="match_parent"
         android:layout_height="64dp"
         android:background="@color/charade"

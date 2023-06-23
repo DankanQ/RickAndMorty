@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="text">@color/white</color>
+
+    <color name="bg">@color/dark_gunmetal</color>
+    <color name="alter_bg">@color/white</color>
+    <color name="ui_bg">@color/charade</color>
+</resources>

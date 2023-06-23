@@ -17,10 +17,12 @@ import com.dankanq.rickandmorty.RickAndMortyApp
 import com.dankanq.rickandmorty.databinding.FragmentEpisodeBinding
 import com.dankanq.rickandmorty.entity.character.domain.Character
 import com.dankanq.rickandmorty.entity.episode.domain.Episode
-import com.dankanq.rickandmorty.presentation.NetworkViewModel
+import com.dankanq.rickandmorty.utils.presentation.viewmodel.NetworkViewModel
 import com.dankanq.rickandmorty.presentation.character.detail.CharacterFragment
-import com.dankanq.rickandmorty.utils.presentation.ViewModelFactory
-import com.dankanq.rickandmorty.utils.presentation.adapter.CharacterAdapter
+import com.dankanq.rickandmorty.presentation.episode.detail.adapter.CharacterAdapter
+import com.dankanq.rickandmorty.utils.domain.State
+import com.dankanq.rickandmorty.utils.presentation.viewmodel.ViewModelFactory
+import com.dankanq.rickandmorty.utils.presentation.model.DatabaseResult
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -98,7 +100,7 @@ class EpisodeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation_view)
             .isVisible = false
     }
 
@@ -109,8 +111,11 @@ class EpisodeFragment : Fragment() {
     }
 
     private fun setupAppBarLayout() {
-        binding.bBack.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
+        binding.layoutAppBarDetail.apply {
+            tvLabel.text = getText(R.string.episode_detail)
+            bBack.setOnClickListener {
+                requireActivity().supportFragmentManager.popBackStack()
+            }
         }
     }
 
@@ -120,9 +125,9 @@ class EpisodeFragment : Fragment() {
                 viewModel.refresh()
             }
             setColorSchemeResources(
-                R.color.white, R.color.white
+                R.color.loading, R.color.loading
             )
-            setProgressBackgroundColorSchemeResource(R.color.ship_gray)
+            setProgressBackgroundColorSchemeResource(R.color.charade)
         }
     }
 
@@ -133,7 +138,7 @@ class EpisodeFragment : Fragment() {
     }
 
     private fun setupRetryCharacterListButton() {
-        binding.charactersLoadState.bRetrySecond.setOnClickListener {
+        binding.secondLoadState.bRetrySecond.setOnClickListener {
             viewModel.retryLoadCharacterList()
         }
     }
@@ -143,7 +148,7 @@ class EpisodeFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.episode.observe(viewLifecycleOwner) { result ->
                     when (result) {
-                        is EpisodeViewModel.DatabaseResult.Success -> {
+                        is DatabaseResult.Success -> {
                             hasEpisodeLocaleData = true
 
                             val episode = result.data as Episode
@@ -158,10 +163,11 @@ class EpisodeFragment : Fragment() {
                                     getCharacterList(isConnected)
                                 }
 
+                                swipeRefreshLayout.isEnabled = true
                                 llContent.isVisible = true
                             }
                         }
-                        is EpisodeViewModel.DatabaseResult.Error -> {
+                        is DatabaseResult.Error -> {
                             hasEpisodeLocaleData = false
 
                             viewModel.retryLoadEpisode()
@@ -175,49 +181,47 @@ class EpisodeFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.loadEpisodeFlow.collect { state ->
                     when (state) {
-                        is EpisodeViewModel.State.Loading -> {
+                        is State.Loading -> {
                             with(binding) {
-                                mainLoadState.apply {
-                                    progressBar.isVisible = true
-                                    llMainLoadingState.isVisible = false
+                                mainLoadState.llMainLoadingState.isVisible = false
+                                swipeRefreshLayout.apply {
+                                    isEnabled = false
+                                    isRefreshing = true
                                 }
-                                swipeRefreshLayout.isEnabled = false
-                                if (mainLoadState.progressBar.isVisible) {
-                                    swipeRefreshLayout.isRefreshing = false
-                                }
-                                llContent.isVisible = false
                             }
                         }
-                        is EpisodeViewModel.State.Success<*> -> {
+                        is State.Success<*> -> {
                             with(binding) {
-                                mainLoadState.apply {
-                                    progressBar.isVisible = false
-                                    llMainLoadingState.isVisible = false
+                                mainLoadState.llMainLoadingState.isVisible = false
+                                swipeRefreshLayout.apply {
+                                    isEnabled = true
+                                    isRefreshing = false
                                 }
-                                swipeRefreshLayout.isEnabled = true
 
                                 viewModel.getEpisode()
                             }
                         }
-                        is EpisodeViewModel.State.Error -> {
+                        is State.Error -> {
                             if (hasEpisodeLocaleData) {
                                 Toast.makeText(
                                     requireContext(),
-                                    "Network error. Unable to refresh the page.",
+                                    getString(R.string.error_cant_refresh_detail),
                                     Toast.LENGTH_SHORT
                                 ).show()
 
                                 viewModel.getEpisode()
 
-                                binding.swipeRefreshLayout.isEnabled = true
                             } else {
-                                with(binding) {
-                                    mainLoadState.llMainLoadingState.isVisible = true
-                                    llContent.isVisible = false
-                                    swipeRefreshLayout.isEnabled = false
+                                binding.mainLoadState.apply {
+                                    tvLoadError.text = getString(R.string.error_network)
+                                    tvLoadErrorInfo.isVisible = false
+                                    llMainLoadingState.isVisible = true
                                 }
                             }
-                            binding.mainLoadState.progressBar.isVisible = false
+                            binding.swipeRefreshLayout.apply {
+                                isRefreshing = false
+                                isEnabled = false
+                            }
                         }
                     }
                 }
@@ -230,7 +234,7 @@ class EpisodeFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.characterList.observe(viewLifecycleOwner) { result ->
                     when (result) {
-                        is EpisodeViewModel.DatabaseResult.Success -> {
+                        is DatabaseResult.Success -> {
                             val characterList = result.data as List<Character>
 
                             binding.rvCharacters.adapter = characterAdapter
@@ -243,13 +247,15 @@ class EpisodeFragment : Fragment() {
                             }
                             characterAdapter.submitList(characterList)
 
-                            binding.charactersLoadState.progressBar.isVisible = false
                             val isEpisodeListDataComplete =
                                 viewModel.isCharacterListDataComplete(characterList.size)
-                            binding.charactersLoadState.llSecondLoadingState.isVisible =
-                                !isEpisodeListDataComplete
+                            binding.secondLoadState.apply {
+                                progressBar.isVisible = false
+                                llSecondLoadState.isVisible =
+                                    !isEpisodeListDataComplete
+                            }
                         }
-                        is EpisodeViewModel.DatabaseResult.Error -> {
+                        is DatabaseResult.Error -> {
                             viewModel.retryLoadCharacterList()
                         }
                     }
@@ -261,22 +267,22 @@ class EpisodeFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.characterListFlow.collect { state ->
                     when (state) {
-                        is EpisodeViewModel.State.Loading -> {
+                        is State.Loading -> {
                             with(binding) {
-                                charactersLoadState.apply {
-                                    llSecondLoadingState.isVisible = false
+                                secondLoadState.apply {
+                                    llSecondLoadState.isVisible = false
                                     progressBar.isVisible = true
                                 }
                             }
                         }
-                        is EpisodeViewModel.State.Success<*> -> {
+                        is State.Success<*> -> {
                             viewModel.getCharacterList(isConnected)
                         }
-                        is EpisodeViewModel.State.Error -> {
+                        is State.Error -> {
                             with(binding) {
-                                charactersLoadState.apply {
+                                secondLoadState.apply {
+                                    llSecondLoadState.isVisible = true
                                     progressBar.isVisible = false
-                                    llSecondLoadingState.isVisible = true
                                 }
                             }
                         }

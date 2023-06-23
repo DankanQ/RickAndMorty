@@ -8,14 +8,14 @@ import com.dankanq.rickandmorty.data.database.dao.CharacterDao
 import com.dankanq.rickandmorty.data.mapper.CharacterMapper
 import com.dankanq.rickandmorty.data.network.CharacterApi
 import com.dankanq.rickandmorty.entity.character.data.database.CharacterEntity
-import com.dankanq.rickandmorty.utils.Constants.PAGE_SIZE
+import com.dankanq.rickandmorty.utils.data.Constants.PAGE_SIZE
+import com.dankanq.rickandmorty.utils.presentation.model.LoadError
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import retrofit2.HttpException
 import java.io.IOException
 
-// TODO: переделать RemoteMediator для большей гибкости
 @OptIn(ExperimentalPagingApi::class)
 class CharacterRemoteMediator @AssistedInject constructor(
     private val characterDao: CharacterDao,
@@ -33,39 +33,40 @@ class CharacterRemoteMediator @AssistedInject constructor(
         loadType: LoadType,
         state: PagingState<Int, CharacterEntity>
     ): MediatorResult {
+        var hasData = false
+
         return try {
             pageIndex = getPageIndex(loadType)
                 ?: return MediatorResult.Success(endOfPaginationReached = true)
 
-            val characterList = fetchCharacters()
+            hasData = characterDao.hasData(name, status, species, type, gender)
+
+            val characterList = loadCharacterList()
             if (loadType == LoadType.REFRESH) {
-                characterDao.refresh(characterList)
+                characterDao.refresh(
+                    characterList,
+                    name, status, species, type, gender
+                )
             } else {
-                characterDao.save(characterList)
+                characterDao.insertCharacterList(characterList)
             }
+
             MediatorResult.Success(
                 endOfPaginationReached = characterList.size < PAGE_SIZE
             )
         } catch (e: IOException) {
-            if (characterDao.getCharacterCount() > 0) {
-                return MediatorResult.Error(
-                    LoadError.NetworkError(
-                        true,
-                        "Ошибка сети: ${e.message}"
-                    )
+            val characterCount = characterDao.getCharacterCount(name, status, species, type, gender)
+            return MediatorResult.Error(
+                LoadError.NetworkError(
+                    e.message.toString(),
+                    hasData,
+                    characterCount
                 )
-            } else {
-                return MediatorResult.Error(
-                    LoadError.NetworkError(
-                        false,
-                        "Ошибка сети: ${e.message}"
-                    )
-                )
-            }
+            )
         } catch (e: HttpException) {
             return MediatorResult.Error(LoadError.HttpError(e.code()))
         } catch (e: Exception) {
-            return MediatorResult.Error(LoadError.UnknownError)
+            return MediatorResult.Error(LoadError.UnknownError(hasData))
         }
     }
 
@@ -78,7 +79,7 @@ class CharacterRemoteMediator @AssistedInject constructor(
         return pageIndex
     }
 
-    private suspend fun fetchCharacters(): List<CharacterEntity> {
+    private suspend fun loadCharacterList(): List<CharacterEntity> {
         return characterApi.getCharacterList(
             pageIndex,
             name = name,
@@ -89,16 +90,6 @@ class CharacterRemoteMediator @AssistedInject constructor(
         )
             .characterList
             .map { characterMapper.mapCharacterDtoToEntity(it) }
-    }
-
-    sealed class LoadError : Exception() {
-        data class NetworkError(
-            val hasData: Boolean,
-            override val message: String
-        ) : LoadError()
-
-        data class HttpError(val code: Int) : LoadError()
-        object UnknownError : LoadError()
     }
 
     @AssistedFactory

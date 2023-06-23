@@ -1,6 +1,6 @@
 package com.dankanq.rickandmorty.utils.data
 
-import com.dankanq.rickandmorty.utils.Constants.EMPTY_STRING
+import com.dankanq.rickandmorty.utils.data.Constants.EMPTY_STRING
 import java.text.SimpleDateFormat
 import java.util.*
 

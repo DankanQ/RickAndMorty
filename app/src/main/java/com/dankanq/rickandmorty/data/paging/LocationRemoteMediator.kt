@@ -8,7 +8,8 @@ import com.dankanq.rickandmorty.data.database.dao.LocationDao
 import com.dankanq.rickandmorty.data.mapper.LocationMapper
 import com.dankanq.rickandmorty.data.network.LocationApi
 import com.dankanq.rickandmorty.entity.location.data.database.LocationEntity
-import com.dankanq.rickandmorty.utils.Constants.PAGE_SIZE
+import com.dankanq.rickandmorty.utils.data.Constants.PAGE_SIZE
+import com.dankanq.rickandmorty.utils.presentation.model.LoadError
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -30,39 +31,42 @@ class LocationRemoteMediator @AssistedInject constructor(
         loadType: LoadType,
         state: PagingState<Int, LocationEntity>
     ): MediatorResult {
+        var hasData = false
+
         return try {
             pageIndex = getPageIndex(loadType)
                 ?: return MediatorResult.Success(endOfPaginationReached = true)
 
-            val locationList = fetchLocationList()
+            hasData = locationDao.hasData(name, type, dimension)
+
+            val locationList = loadLocationList()
             if (loadType == LoadType.REFRESH) {
-                locationDao.refresh(locationList)
+                locationDao.refresh(
+                    locationList,
+                    name,
+                    type,
+                    dimension
+                )
             } else {
-                locationDao.save(locationList)
+                locationDao.insertLocationList(locationList)
             }
+
             MediatorResult.Success(
                 endOfPaginationReached = locationList.size < PAGE_SIZE
             )
         } catch (e: IOException) {
-            if (locationDao.getLocationsCount() > 0) {
-                return MediatorResult.Error(
-                    LoadError.NetworkError(
-                        true,
-                        "Ошибка сети: ${e.message}"
-                    )
+            val locationCount = locationDao.getLocationCount(name, type, dimension)
+            return MediatorResult.Error(
+                LoadError.NetworkError(
+                    e.message.toString(),
+                    hasData,
+                    locationCount
                 )
-            } else {
-                return MediatorResult.Error(
-                    LoadError.NetworkError(
-                        false,
-                        "Ошибка сети: ${e.message}"
-                    )
-                )
-            }
+            )
         } catch (e: HttpException) {
             return MediatorResult.Error(LoadError.HttpError(e.code()))
         } catch (e: Exception) {
-            return MediatorResult.Error(LoadError.UnknownError)
+            return MediatorResult.Error(LoadError.UnknownError(hasData))
         }
     }
 
@@ -75,7 +79,7 @@ class LocationRemoteMediator @AssistedInject constructor(
         return pageIndex
     }
 
-    private suspend fun fetchLocationList(): List<LocationEntity> {
+    private suspend fun loadLocationList(): List<LocationEntity> {
         return locationApi.getLocationList(
             pageIndex,
             name = name,
@@ -84,16 +88,6 @@ class LocationRemoteMediator @AssistedInject constructor(
         )
             .locationList
             .map { locationMapper.mapLocationDtoToEntity(it) }
-    }
-
-    sealed class LoadError : Exception() {
-        data class NetworkError(
-            val hasData: Boolean,
-            override val message: String
-        ) : LoadError()
-
-        data class HttpError(val code: Int) : LoadError()
-        object UnknownError : LoadError()
     }
 
     @AssistedFactory

@@ -15,9 +15,9 @@ import javax.inject.Inject
 class EpisodeListViewModel @Inject constructor(
     private val getEpisodeListUseCase: GetEpisodeListUseCase
 ) : ViewModel() {
-    private val filterParams = MutableLiveData(EpisodeFilterParams())
+    private val episodeFilterParams = MutableLiveData(EpisodeFilterParams())
 
-    val episodeListFlow = filterParams.asFlow()
+    val episodeListFlow = episodeFilterParams.asFlow()
         .distinctUntilChanged()
         .flatMapLatest { params ->
             getEpisodeListUseCase(
@@ -28,7 +28,11 @@ class EpisodeListViewModel @Inject constructor(
         .cachedIn(viewModelScope)
 
     fun applyFilters(params: EpisodeFilterParams) {
-        filterParams.value = params
+        episodeFilterParams.value = params
+    }
+
+    fun clearFilters() {
+        episodeFilterParams.value = EpisodeFilterParams()
     }
 
     data class EpisodeFilterParams(
