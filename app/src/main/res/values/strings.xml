@@ -1,3 +1,54 @@
 <resources>
-    <string name="app_name">RickAndMorty</string>
+    <string name="app_name">Rick and Morty</string>
+
+    <string name="search_characters">Search characters</string>
+    <string name="search_locations">Search locations</string>
+    <string name="search_episodes">Search episodes</string>
+
+    <string name="name">Name</string>
+    <string name="species">Species</string>
+    <string name="type">Type</string>
+    <string name="all">Any</string>
+    <string name="status">Status:</string>
+    <string name="gender">Gender:</string>
+    <string name="separator">&#160;|&#160;</string>
+    <string name="alive">Alive</string>
+    <string name="dead">Dead</string>
+    <string name="unknown">unknown</string>
+    <string name="Status">Status</string>
+    <string name="information">Information</string>
+    <string name="character_detail">Character detail</string>
+    <string name="episodes">Episodes</string>
+    <string name="last_known_location">Last known location</string>
+    <string name="first_seen_in">First seen in</string>
+    <string name="episode">Episode</string>
+    <string name="episode_detail">Episode detail</string>
+    <string name="air_date">Air date</string>
+    <string name="characters">Characters</string>
+    <string name="locations">Locations</string>
+    <string name="location_detail">Location detail</string>
+    <string name="dimension">Dimension</string>
+    <string name="residents">Residents</string>
+
+    <string name="filter_characters">Filter characters</string>
+    <string name="filter_locations">Filter locations</string>
+    <string name="filter_episodes">Filter episodes</string>
+
+    <string name="search">Search</string>
+
+    <string name="network_state_error">No internet connection</string>
+
+    <string name="error_network">Network Error</string>
+    <string name="error_http">HTTP Error</string>
+    <string name="error_http_description">Code: %s</string>
+    <string name="error_empty_response">List is empty</string>
+    <string name="error_no_data">Have no data</string>
+    <string name="error_unknown">Unknown Error</string>
+    <string name="error_unknown_description">Try again later</string>
+    <string name="error_cant_refresh_detail">Network error. Unable to refresh the page.</string>
+
+    <string name="retry">Retry</string>
+
+    <string name="content_description_rick_and_morty_logo">Rick and Morty logo</string>
+    <string name="content_description_character_image">Character image</string>
 </resources>

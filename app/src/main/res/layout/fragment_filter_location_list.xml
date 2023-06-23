@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_filter_locations"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="32dp"
+    android:paddingVertical="32dp">
+
+    <TextView
+        android:id="@+id/tv_filter_locations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:alpha="0.9"
+        android:includeFontPadding="false"
+        android:text="@string/filter_locations"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/et_name"
+        style="@style/FilterEditText"
+        android:layout_marginTop="32dp"
+        android:hint="@string/name"
+        android:imeOptions="actionNext"
+        tools:ignore="Autofill" />
+
+    <EditText
+        android:id="@+id/et_type"
+        style="@style/FilterEditText"
+        android:layout_marginTop="16dp"
+        android:hint="@string/type"
+        android:imeOptions="actionDone"
+        tools:ignore="Autofill" />
+
+    <EditText
+        android:id="@+id/et_dimension"
+        style="@style/FilterEditText"
+        android:layout_marginTop="16dp"
+        android:hint="@string/dimension"
+        android:imeOptions="actionDone"
+        tools:ignore="Autofill" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/b_search"
+        style="@style/SearchButton" />
+
+</LinearLayout>
